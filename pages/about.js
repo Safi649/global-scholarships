@@ -1,69 +1,62 @@
-import Image from "next/image";
-import { motion } from "framer-motion";
+// pages/about.js
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 
-export default function AboutPage() {
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0 },
-  };
-
+export default function About() {
   return (
-    <motion.section
-      initial="hidden"
-      animate="visible"
-      transition={{ staggerChildren: 0.2 }}
-      className="min-h-screen bg-white py-16 px-4 md:px-12 text-center"
-    >
-      <motion.h2
-        variants={fadeInUp}
-        className="text-4xl font-bold mb-10 text-indigo-700"
-      >
-        Meet Our Management Team
-      </motion.h2>
+    <div className="min-h-screen bg-white text-gray-900 px-6 py-12">
+      <div className="max-w-4xl mx-auto text-center">
+        <h1 className="text-4xl font-bold mb-6">About Global Scholarships</h1>
+        <p className="text-lg mb-10">
+          Global Scholarships is a platform dedicated to sharing international scholarship opportunities
+          with students around the world. We aim to help talented individuals access quality education and
+          build a better future.
+        </p>
 
-      <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-        {/* Abbas */}
-        <motion.div
-          variants={fadeInUp}
-          className="bg-gray-100 p-6 rounded-xl shadow-md"
-        >
-          <Image
-            src="/abbas.jpg"
-            alt="M Abbas Safi"
-            width={300}
-            height={300}
-            className="mx-auto rounded-full object-cover"
-          />
-          <h3 className="text-2xl font-semibold mt-4">M Abbas Safi</h3>
-          <p className="text-sm text-gray-600">Founder & Web Developer</p>
-          <p className="mt-2 text-gray-700">📧 muhammadabbassafi332@gmail.com</p>
-          <p className="mt-4 text-gray-600">
-            M Abbas Safi is the visionary founder and talented web developer behind Global Scholarships.
-            He created this platform to help students worldwide find international scholarship opportunities.
-          </p>
-        </motion.div>
+        <h2 className="text-2xl font-semibold mb-6">Management Team</h2>
 
-        {/* Hisan */}
-        <motion.div
-          variants={fadeInUp}
-          className="bg-gray-100 p-6 rounded-xl shadow-md"
-        >
-          <Image
-            src="/friend1.jpg"
-            alt="Muhammad Hisan"
-            width={300}
-            height={300}
-            className="mx-auto rounded-full object-cover"
-          />
-          <h3 className="text-2xl font-semibold mt-4">Muhammad Hisan</h3>
-          <p className="text-sm text-gray-600">Manager & Group Controller</p>
-          <p className="mt-2 text-gray-700">📧 hisanawan1011@gmail.com</p>
-          <p className="mt-4 text-gray-600">
-            Muhammad Hisan plays a key role as the manager and controller of our international scholarships group and website.
-            His leadership ensures smooth operations and helps students benefit globally.
-          </p>
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Abbas Safi */}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="flex flex-col items-center text-center p-4 border rounded-xl shadow-md"
+          >
+            <Image
+              src="/abbas.jpg"
+              alt="M Abbas Safi"
+              width={200}
+              height={200}
+              className="rounded-full"
+            />
+            <h3 className="text-xl font-bold mt-4">M Abbas Safi</h3>
+            <p className="text-gray-600">Founder & Web Developer</p>
+            <p className="text-sm text-gray-500 mt-1">muhammadabbassafi332@gmail.com</p>
+            <p className="mt-2 text-sm">
+              M Abbas Safi is the visionary founder and owner of the Global Scholarships website. He is a skilled web developer with expertise in modern technologies, passionate about making education accessible worldwide.
+            </p>
+          </motion.div>
+
+          {/* Muhammad Hissan */}
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="flex flex-col items-center text-center p-4 border rounded-xl shadow-md"
+          >
+            <Image
+              src="/friend1.jpg"
+              alt="Muhammad Hissan"
+              width={200}
+              height={200}
+              className="rounded-full"
+            />
+            <h3 className="text-xl font-bold mt-4">Muhammad Hissan</h3>
+            <p className="text-gray-600">Manager & Group Controller</p>
+            <p className="text-sm text-gray-500 mt-1">hisanawan1011@gmail.com</p>
+            <p className="mt-2 text-sm">
+              Muhammad Hissan serves as the manager and controller of the Global Scholarships group and website. His dedication and leadership help in organizing and maintaining our growing community of scholarship seekers.
+            </p>
+          </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </div>
   );
 }
