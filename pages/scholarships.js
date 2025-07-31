@@ -1,5 +1,31 @@
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import Head from 'next/head';
+import ScholarshipCard from '../components/ScholarshipCard';
+
+const scholarships = [
+  {
+    title: "Chevening UK Scholarship",
+    country: "United Kingdom",
+    degree: "Master's",
+    deadline: "Nov 7",
+    funded: "Fully Funded"
+  },
+  {
+    title: "MEXT Japan Scholarship",
+    country: "Japan",
+    degree: "Bachelor's, Master's",
+    deadline: "May 31",
+    funded: "Fully Funded"
+  },
+  {
+    title: "Erasmus Mundus",
+    country: "Europe",
+    degree: "Master's",
+    deadline: "Varies",
+    funded: "Fully Funded"
+  }
+];
 
 export default function Scholarships() {
   return (
@@ -8,17 +34,26 @@ export default function Scholarships() {
         <title>Scholarships – Global Scholarships</title>
       </Head>
       <Navbar />
-      <main className="p-6">
-        <h1 className="text-3xl font-bold mb-4">Scholarships</h1>
-        <p>Here you will find a list of all international scholarships we share. Filters will be added soon!</p>
+      <main className="p-6 bg-gray-50 min-h-screen">
+        <h1 className="text-3xl font-bold mb-4">Available Scholarships</h1>
 
-        <ul className="mt-6 list-disc list-inside space-y-2">
-          <li><strong>Chevening UK Scholarship</strong> – Master’s – Deadline: Nov 7</li>
-          <li><strong>MEXT Japan Scholarship</strong> – Bachelor’s, Master’s – Deadline: May 31</li>
-          <li><strong>Erasmus Mundus</strong> – Fully Funded – Deadline: Varies</li>
-        </ul>
+        {/* 🔍 Search Filter UI */}
+        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+          <input
+            type="text"
+            placeholder="Search by country or title"
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+
+        {/* 🧾 Scholarship Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {scholarships.map((item, index) => (
+            <ScholarshipCard key={index} {...item} />
+          ))}
+        </div>
       </main>
+      <Footer />
     </>
   );
 }
-
