@@ -1,24 +1,28 @@
-import Navbar from '../components/Navbar';
-import Head from 'next/head';
+<section className="py-12 bg-white text-gray-800" id="about">
+  <div className="max-w-5xl mx-auto px-4">
+    <h2 className="text-3xl font-bold text-center mb-10">Meet the Team</h2>
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-10">
+      
+      <div className="text-center">
+        <img
+          src="/abbas.jpg"
+          alt="M Abbas Safi"
+          className="w-40 h-40 object-cover rounded-full mx-auto shadow-md"
+        />
+        <h3 className="mt-4 text-xl font-semibold">M Abbas Safi</h3>
+        <p className="text-sm text-gray-600">Founder & Developer</p>
+      </div>
 
-export default function About() {
-  return (
-    <>
-      <Head>
-        <title>About – Global Scholarships</title>
-      </Head>
-      <Navbar />
-      <main className="p-6">
-        <h1 className="text-3xl font-bold mb-4">About Global Scholarships</h1>
-        <p>
-          Global Scholarships is a platform created by a community of students to share and promote international
-          scholarship opportunities for Bachelor's, Master's, and PhD degrees.
-        </p>
-        <p className="mt-2">
-          Our mission is to make global education accessible by making scholarships easy to find and apply for — all in one place.
-        </p>
-      </main>
-    </>
-  );
-}
+      <div className="text-center">
+        <img
+          src="/friend1.jpg"
+          alt="Friend Name"
+          className="w-40 h-40 object-cover rounded-full mx-auto shadow-md"
+        />
+        <h3 className="mt-4 text-xl font-semibold">Friend Name</h3>
+        <p className="text-sm text-gray-600">Co-Founder</p>
+      </div>
 
+    </div>
+  </div>
+</section>
