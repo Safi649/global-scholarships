@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function AboutSection() {
+export default function AboutPage() {
   return (
     <section className="min-h-screen bg-white py-16 px-4 md:px-12 text-center">
       <h2 className="text-4xl font-bold mb-10 text-indigo-700">
