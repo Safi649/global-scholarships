@@ -1,49 +1,92 @@
-import Head from 'next/head';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { motion } from 'framer-motion';
+// 📁 pages/index.js
+import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 export default function Home() {
   return (
-    <>
-      <Head>
-        <title>Global Scholarships</title>
-        <meta name="description" content="Discover global opportunities with fully funded international scholarships for Bachelor’s, Master’s, and PhD programs." />
-      </Head>
-
-      <Navbar />
-
-      <main className="min-h-screen flex flex-col items-center justify-center text-white px-6 py-16 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-
-        <motion.h1
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
+    <main className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-800 text-white font-sans">
+      {/* Hero Section */}
+      <section className="text-center py-20 px-6">
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 1 }}
-          className="text-5xl md:text-6xl font-extrabold text-center leading-tight mb-6"
+          className="text-4xl md:text-6xl font-bold mb-4"
         >
-          Unlock Your Future with <span className="text-yellow-400">Global Scholarships</span>
+          Global Scholarships for Students
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2 }}
-          className="text-lg md:text-xl text-center max-w-2xl mb-10 text-gray-200"
+        <motion.p 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 0.5 }}
+          className="text-lg md:text-xl mb-8 max-w-2xl mx-auto"
         >
-          Explore fully funded opportunities around the world for Bachelors, Masters, and PhD programs. 100% free, always updated.
+          Discover, apply, and win scholarships from top global universities.
         </motion.p>
-
-        <motion.a
-          href="/scholarships"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-yellow-400 text-indigo-900 font-bold py-3 px-6 rounded-2xl text-lg shadow-xl hover:bg-yellow-300 transition"
+        <motion.div 
+          initial={{ scale: 0.8 }} 
+          animate={{ scale: 1 }} 
+          transition={{ delay: 1 }}
         >
-          🎓 Explore Scholarships
-        </motion.a>
-      </main>
+          <Link href="/scholarships" className="bg-white text-black px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-gray-200 transition">
+            Browse Scholarships
+          </Link>
+        </motion.div>
+      </section>
 
-      <Footer />
-    </>
-  );
+      {/* Features */}
+      <section className="py-16 bg-white text-gray-900">
+        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-10 text-center">
+          <motion.div whileHover={{ scale: 1.05 }}>
+            <h3 className="text-xl font-bold mb-2">Search Scholarships</h3>
+            <p>Filter by country, level, or field to find the right opportunity.</p>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }}>
+            <h3 className="text-xl font-bold mb-2">Easy Applications</h3>
+            <p>Get direct links and tips for a successful application.</p>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.05 }}>
+            <h3 className="text-xl font-bold mb-2">Daily Updates</h3>
+            <p>Stay updated with fresh international scholarships.</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Popular Scholarships (static for now) */}
+      <section className="py-20 px-6 bg-indigo-800 text-center">
+        <h2 className="text-3xl font-bold mb-10">Popular Scholarships</h2>
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {["USA", "UK", "Canada"].map((country, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.05 }}
+              className="bg-white text-black p-6 rounded-xl shadow-md"
+            >
+              <h3 className="text-xl font-bold">{country} Scholarships</h3>
+              <p className="text-sm mt-2">Top programs for {country} in 2025.</p>
+              <Link href="/scholarships" className="text-blue-600 underline mt-4 inline-block">Explore</Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* About */}
+      <section className="py-16 px-6 bg-gray-100 text-gray-900 text-center">
+        <h2 className="text-3xl font-bold mb-6">About Global Scholarships</h2>
+        <p className="max-w-3xl mx-auto">
+          Our mission is to empower students globally by providing access to verified scholarship opportunities. Whether you're pursuing undergraduate or PhD, we help you succeed.
+        </p>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 py-8 px-6 text-center">
+        <p>© {new Date().getFullYear()} Global Scholarships. All rights reserved.</p>
+        <div className="mt-4 space-x-4">
+          <Link href="/about" className="hover:underline">About</Link>
+          <Link href="/scholarships" className="hover:underline">Scholarships</Link>
+          <Link href="mailto:safi65225@gmail.com" className="hover:underline">Contact</Link>
+        </div>
+      </footer>
+    </main>
+  )
 }
