@@ -1,6 +1,7 @@
 // 📁 pages/index.js
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { FaWhatsapp } from 'react-icons/fa'
 
 export default function Home() {
   return (
@@ -27,10 +28,24 @@ export default function Home() {
           initial={{ scale: 0.8 }} 
           animate={{ scale: 1 }} 
           transition={{ delay: 1 }}
+          className="space-y-4"
         >
           <Link href="/scholarships" className="bg-white text-black px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-gray-200 transition">
             Browse Scholarships
           </Link>
+
+          {/* WhatsApp Button */}
+          <motion.a
+            href="https://chat.whatsapp.com/Ll89aBgITG74uXzrSuoyKb"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex justify-center items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-600 transition-colors text-lg font-semibold w-fit mx-auto"
+          >
+            <FaWhatsapp className="text-2xl" />
+            Join WhatsApp Group
+          </motion.a>
         </motion.div>
       </section>
 
@@ -52,7 +67,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Scholarships (static for now) */}
+      {/* Popular Scholarships */}
       <section className="py-20 px-6 bg-indigo-800 text-center">
         <h2 className="text-3xl font-bold mb-10">Popular Scholarships</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
