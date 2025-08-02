@@ -2,7 +2,6 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
-import Layout from '../components/layout';
 import { motion } from 'framer-motion';
 
 // Dummy data (same as on the scholarships page)
