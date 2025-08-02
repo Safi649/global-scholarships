@@ -1,6 +1,6 @@
 import Navbar from '../components/Navbar';
 import Head from 'next/head';
-
+import Footer from '../components/footer';
 export default function Submit() {
   return (
     <>
