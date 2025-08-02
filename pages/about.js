@@ -1,7 +1,7 @@
 // pages/about.js
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-
+import Footer from '../components/footer';
 export default function About() {
   return (
     <div className="min-h-screen bg-white text-gray-900 px-6 py-12">
