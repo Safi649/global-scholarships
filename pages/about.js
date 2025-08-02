@@ -1,6 +1,7 @@
 // pages/about.js
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 export default function About() {
   return (
