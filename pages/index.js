@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FaWhatsapp } from 'react-icons/fa'
+import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 export default function Home() {
   return (
