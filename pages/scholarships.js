@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
