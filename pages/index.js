@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { FaWhatsapp } from 'react-icons/fa'
-
+import Footer from '../components/footer';
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-800 text-white font-sans">
