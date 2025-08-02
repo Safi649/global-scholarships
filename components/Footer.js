@@ -1,12 +1,6 @@
-export default function Footer() {
-  return (
-    <footer className="bg-blue-700 text-white py-4 mt-12">
-      <div className="max-w-7xl mx-auto text-center text-sm px-4">
-        © {new Date().getFullYear()} Global Scholarships. All rights reserved.
-        <div className="mt-2">
-          Built with 💙 by the Global Scholarships Team
-        </div>
-      </div>
-    </footer>
-  );
-}
+<div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-600">
+  <a href="/about" className="hover:underline">About</a>
+  <a href="/contact" className="hover:underline">Contact</a>
+  <a href="/terms" className="hover:underline">Terms</a>
+  <a href="/disclaimer" className="hover:underline">Disclaimer</a>
+</div>
