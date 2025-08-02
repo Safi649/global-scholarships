@@ -1,25 +1,24 @@
-// components/Navbar.js (or inside pages/index.js if it's inline)
-
+import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-6 py-4 shadow bg-white">
-      <div className="flex items-center space-x-3">
-        <Image
-          src="/logo.png" // ✅ Make sure this file exists: /public/logo.png
-          alt="Global Scholarships Logo"
-          width={120}
-          height={40}
-          className="object-contain"
-        />
-        <span className="font-bold text-lg text-gray-800">Global Scholarships</span>
-      </div>
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
+          <Image src="/logo.png" alt="Global Scholarships" width={40} height={40} />
+          <span className="text-xl font-bold text-blue-700">Global Scholarships</span>
+        </Link>
 
-      <div className="flex space-x-4">
-        <a href="/" className="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-        <a href="/about" className="text-gray-700 hover:text-blue-600 font-medium">About</a>
-        <a href="/contact" className="text-gray-700 hover:text-blue-600 font-medium">Contact</a>
+        {/* Navigation Links */}
+        <div className="flex space-x-6 text-sm font-medium text-gray-700">
+          <Link href="/" className="hover:text-blue-600">Home</Link>
+          <Link href="/about" className="hover:text-blue-600">About</Link>
+          <Link href="/contact" className="hover:text-blue-600">Contact</Link>
+          <Link href="/terms" className="hover:text-blue-600">Terms</Link>
+          <Link href="/disclaimer" className="hover:text-blue-600">Disclaimer</Link>
+        </div>
       </div>
     </nav>
   );
