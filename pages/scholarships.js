@@ -49,6 +49,14 @@ export default function Scholarships() {
                 <p className="text-xs text-gray-400 mt-2">
                   Added: {scholarship.createdAt?.toDate().toLocaleString()}
                 </p>
+
+                {/* ✏️ Edit Link */}
+                <a
+                  href={`/scholarships/edit/${scholarship.id}`}
+                  className="inline-block mt-4 text-blue-600 hover:underline text-sm"
+                >
+                  ✏️ Edit
+                </a>
               </div>
             ))}
           </div>
