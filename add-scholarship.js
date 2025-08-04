@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { db } from '../../firebase';
+import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 
@@ -8,17 +8,10 @@ export default function AddScholarship() {
   const [country, setCountry] = useState('');
   const [university, setUniversity] = useState('');
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!title || !country || !university) {
-      alert('Please fill in all fields');
-      return;
-    }
-
     setLoading(true);
     try {
       await addDoc(collection(db, 'scholarships'), {
@@ -27,7 +20,7 @@ export default function AddScholarship() {
         university,
         createdAt: serverTimestamp(),
       });
-      router.push('/scholarships'); // redirect after adding
+      router.push('/scholarships');
     } catch (error) {
       console.error('Error adding scholarship:', error);
     } finally {
@@ -36,39 +29,47 @@ export default function AddScholarship() {
   };
 
   return (
-    <div className="min-h-screen px-6 py-12 bg-gray-100 text-gray-800">
-      <div className="max-w-xl mx-auto bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-6 text-center">Add Scholarship</h1>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Scholarship Title"
-            className="w-full p-3 border rounded"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Country"
-            className="w-full p-3 border rounded"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="University"
-            className="w-full p-3 border rounded"
-            value={university}
-            onChange={(e) => setUniversity(e.target.value)}
-          />
-
+    <div className="min-h-screen px-6 py-12 bg-gray-50 text-gray-800">
+      <div className="max-w-xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6 text-center">Add New Scholarship</h1>
+        <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full border px-3 py-2 rounded"
+              placeholder="E.g., Fully Funded Canada Scholarship"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Country</label>
+            <input
+              type="text"
+              required
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="w-full border px-3 py-2 rounded"
+              placeholder="E.g., Canada"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">University</label>
+            <input
+              type="text"
+              required
+              value={university}
+              onChange={(e) => setUniversity(e.target.value)}
+              className="w-full border px-3 py-2 rounded"
+              placeholder="E.g., University of Toronto"
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 transition"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition w-full"
           >
             {loading ? 'Adding...' : 'Add Scholarship'}
           </button>
