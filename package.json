@@ -4,7 +4,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "deploy-rules": "firebase deploy --only firestore:rules",
+    "deploy-firestore": "firebase deploy --only firestore",
+    "deploy-hosting": "firebase deploy --only hosting",
+    "deploy-all": "firebase deploy"
   },
   "dependencies": {
     "next": "14.1.0",
@@ -21,3 +25,4 @@
     "autoprefixer": "^10.4.13"
   }
 }
+
