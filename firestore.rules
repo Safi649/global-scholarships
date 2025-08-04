@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Rules for scholarships collection
+    match /scholarships/{scholarshipId} {
+      // Allow anyone to read (view) scholarships
+      allow read: if true;
+
+      // Allow only YOU to write (add/edit/delete)
+      allow write: if request.auth != null &&
+                   request.auth.token.email == "muhammadabbassafi332@gmail.com";
+    }
+  }
+}
