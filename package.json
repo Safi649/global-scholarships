@@ -18,12 +18,11 @@
     "react-icons": "^4.12.0",
     "firebase": "^9.6.1",
     "react-firebase-hooks": "^5.1.1"
-    "@netlify/plugin-nextjs": "^4.37.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.16",
-    "autoprefixer": "^10.4.13"
+    "autoprefixer": "^10.4.13",
+    "@netlify/plugin-nextjs": "^4.37.0"
   }
 }
-
