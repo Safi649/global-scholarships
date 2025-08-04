@@ -1,72 +1,75 @@
-import { useEffect, useState } from 'react';
-import { db } from '../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import { db } from "../firebaseConfig";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchScholarships = async () => {
-      try {
-        const q = query(collection(db, 'scholarships'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setScholarships(data);
-      } catch (error) {
-        console.error('Error fetching scholarships:', error);
-      } finally {
-        setLoading(false);
-      }
+      const querySnapshot = await getDocs(collection(db, "scholarships"));
+      const data = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setScholarships(data);
     };
 
     fetchScholarships();
   }, []);
 
+  const handleDelete = async (id) => {
+    const confirmDelete = confirm("Are you sure you want to delete this scholarship?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteDoc(doc(db, "scholarships", id));
+      setScholarships((prev) => prev.filter((s) => s.id !== id));
+      alert("Scholarship deleted successfully!");
+    } catch (error) {
+      alert("Error deleting scholarship: " + error.message);
+    }
+  };
+
   return (
-    <div className="min-h-screen px-6 py-12 bg-gray-100 text-gray-800">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center">All Scholarships</h1>
+    <div className="min-h-screen px-6 py-12 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 text-gray-900">
+      <h1 className="text-3xl font-bold mb-6 text-center">Scholarship Listings</h1>
 
-        <div className="text-right mb-6">
-          <Link href="/add-scholarship" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-            ➕ Add Scholarship
-          </Link>
-        </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {scholarships.map((scholarship) => (
+          <div key={scholarship.id} className="bg-white shadow-md rounded p-4 border border-gray-200">
+            <h2 className="text-xl font-semibold">{scholarship.title}</h2>
+            <p className="text-sm mt-2 mb-4">{scholarship.description}</p>
 
-        {loading ? (
-          <p className="text-center">Loading scholarships...</p>
-        ) : scholarships.length === 0 ? (
-          <p className="text-center text-gray-500">No scholarships found.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {scholarships.map((scholarship) => (
-              <div key={scholarship.id} className="bg-white p-6 rounded shadow">
-                <h2 className="text-xl font-semibold">{scholarship.title}</h2>
-                <p className="text-gray-600 mt-2">
-                  <strong>Country:</strong> {scholarship.country}
-                </p>
-                <p className="text-gray-600">
-                  <strong>University:</strong> {scholarship.university}
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Added: {scholarship.createdAt?.toDate().toLocaleString()}
-                </p>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => router.push(`/editScholarship?id=${scholarship.id}`)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Edit
+              </button>
 
-                <Link
-                  href={`/scholarships/edit/${scholarship.id}`}
-                  className="inline-block mt-4 text-blue-600 hover:underline text-sm"
-                >
-                  ✏️ Edit
-                </Link>
-              </div>
-            ))}
+              <button
+                onClick={() => handleDelete(scholarship.id)}
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        )}
+        ))}
+      </div>
+
+      <div className="mt-10 text-center">
+        <Link
+          href="/addscholarships"
+          className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2 rounded"
+        >
+          + Add Scholarship
+        </Link>
       </div>
     </div>
   );
