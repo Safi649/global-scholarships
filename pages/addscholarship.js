@@ -1,120 +1,123 @@
-// 📁 pages/addscholarship.js
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
-import Layout from "../components/layout";
+// pages/addScholarships.js
+import { useState } from 'react';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../firebaseConfig';
+import Navbar from '../components/navbar';
+import Footer from '../components/footer';
+import { useRouter } from 'next/router';
 
 export default function AddScholarship() {
-  const [user, loading] = useAuthState(auth);
-  const router = useRouter();
-
   const [formData, setFormData] = useState({
-    title: "",
-    country: "",
-    level: "",
-    deadline: "",
-    link: "",
+    imageUrl: '',
+    title: '',
+    country: '',
+    eligibleCountries: '',
+    link: '',
   });
 
-  const [message, setMessage] = useState("");
-
-  // ✅ Only allow admin access
-  useEffect(() => {
-    if (!loading) {
-      if (!user || user.email !== "muhammadabbassafi332@gmail.com") {
-        router.push("/"); // 🚫 Not admin → redirect
-      }
-    }
-  }, [user, loading]);
+  const router = useRouter();
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, "scholarships"), {
-        ...formData,
-        createdAt: serverTimestamp(),
-      });
-      setMessage("✅ Scholarship added successfully!");
-      setFormData({ title: "", country: "", level: "", deadline: "", link: "" });
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Error saving scholarship.");
+      await addDoc(collection(db, 'scholarships'), formData);
+      alert('Scholarship added successfully!');
+      router.push('/scholarships');
+    } catch (error) {
+      console.error('Error adding scholarship:', error);
+      alert('Failed to add scholarship.');
     }
   };
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-100 py-12 px-4">
-        <div className="max-w-xl mx-auto bg-white p-8 rounded-xl shadow">
-          <h1 className="text-2xl font-bold mb-6 text-center">Add Scholarship</h1>
+    <div className="min-h-screen bg-white px-4 py-10 text-gray-900">
+      <Navbar />
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-center">Add New Scholarship</h1>
+        <form onSubmit={handleSubmit} className="space-y-6 bg-gray-100 p-6 rounded-lg shadow-md">
+          {/* Image URL */}
+          <div>
+            <label className="block mb-1 font-medium">Image URL</label>
+            <input
+              type="text"
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={handleChange}
+              className="w-full border px-3 py-2 rounded"
+              placeholder="Enter image URL"
+              required
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Scholarship Name */}
+          <div>
+            <label className="block mb-1 font-medium">Scholarship Name</label>
             <input
               type="text"
               name="title"
-              placeholder="Scholarship Title"
               value={formData.title}
               onChange={handleChange}
-              className="w-full border px-4 py-2 rounded"
+              className="w-full border px-3 py-2 rounded"
+              placeholder="e.g. DAAD Germany Scholarship"
               required
             />
+          </div>
+
+          {/* Country */}
+          <div>
+            <label className="block mb-1 font-medium">Country Offering Scholarship</label>
             <input
               type="text"
               name="country"
-              placeholder="Country"
               value={formData.country}
               onChange={handleChange}
-              className="w-full border px-4 py-2 rounded"
+              className="w-full border px-3 py-2 rounded"
+              placeholder="e.g. Germany"
               required
             />
+          </div>
+
+          {/* Eligible Countries */}
+          <div>
+            <label className="block mb-1 font-medium">Eligible Countries</label>
             <input
               type="text"
-              name="level"
-              placeholder="Study Level (e.g. Undergraduate)"
-              value={formData.level}
+              name="eligibleCountries"
+              value={formData.eligibleCountries}
               onChange={handleChange}
-              className="w-full border px-4 py-2 rounded"
+              className="w-full border px-3 py-2 rounded"
+              placeholder="e.g. All Developing Countries"
               required
             />
-            <input
-              type="date"
-              name="deadline"
-              value={formData.deadline}
-              onChange={handleChange}
-              className="w-full border px-4 py-2 rounded"
-              required
-            />
+          </div>
+
+          {/* Direct Apply Link */}
+          <div>
+            <label className="block mb-1 font-medium">Apply Link</label>
             <input
               type="url"
               name="link"
-              placeholder="Application Link"
               value={formData.link}
               onChange={handleChange}
-              className="w-full border px-4 py-2 rounded"
+              className="w-full border px-3 py-2 rounded"
+              placeholder="https://apply.scholarship.org"
               required
             />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-            >
-              Save Scholarship
-            </button>
-          </form>
+          </div>
 
-          {message && <p className="mt-4 text-center text-sm">{message}</p>}
-        </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+          >
+            Add Scholarship
+          </button>
+        </form>
       </div>
-    </Layout>
+      <Footer />
+    </div>
   );
 }
