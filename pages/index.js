@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa';
 import Layout from '../components/layout';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../firebase';
 
 export default function Home() {
   return (
