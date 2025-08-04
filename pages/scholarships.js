@@ -1,13 +1,7 @@
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebase';
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  deleteDoc,
-  doc,
-} from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { db } from '../firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import Link from 'next/link';
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
@@ -33,23 +27,16 @@ export default function Scholarships() {
     fetchScholarships();
   }, []);
 
-  // 🗑️ Delete Function
-  const handleDelete = async (id) => {
-    const confirmDelete = confirm('Are you sure you want to delete this scholarship?');
-    if (!confirmDelete) return;
-
-    try {
-      await deleteDoc(doc(db, 'scholarships', id));
-      setScholarships((prev) => prev.filter((item) => item.id !== id));
-    } catch (error) {
-      console.error('Error deleting scholarship:', error);
-    }
-  };
-
   return (
     <div className="min-h-screen px-6 py-12 bg-gray-100 text-gray-800">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-center">All Scholarships</h1>
+
+        <div className="text-right mb-6">
+          <Link href="/add-scholarship" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+            ➕ Add Scholarship
+          </Link>
+        </div>
 
         {loading ? (
           <p className="text-center">Loading scholarships...</p>
@@ -70,21 +57,12 @@ export default function Scholarships() {
                   Added: {scholarship.createdAt?.toDate().toLocaleString()}
                 </p>
 
-                {/* ✏️ Edit Link */}
-                <a
+                <Link
                   href={`/scholarships/edit/${scholarship.id}`}
                   className="inline-block mt-4 text-blue-600 hover:underline text-sm"
                 >
                   ✏️ Edit
-                </a>
-
-                {/* 🗑️ Delete Button */}
-                <button
-                  onClick={() => handleDelete(scholarship.id)}
-                  className="inline-block mt-2 text-red-600 hover:underline text-sm ml-4"
-                >
-                  🗑️ Delete
-                </button>
+                </Link>
               </div>
             ))}
           </div>
