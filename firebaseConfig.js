@@ -1,19 +1,19 @@
 // firebaseConfig.js
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyClpsjlFZrsFEi-tVIjoN-R5Wk801gb0sM",
-  authDomain: "scholarships-1fc74.firebaseapp.com",
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
   projectId: "scholarships-1fc74",
-  storageBucket: "scholarships-1fc74.appspot.com",
-  messagingSenderId: "230006779571",
-  appId: "1:230006779571:web:04a02a9fadec274e6f4ac6",
-  measurementId: "G-1HKY81QFTD"
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-export { db };
-
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
