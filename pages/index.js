@@ -8,6 +8,12 @@ import { auth } from '../firebase';
 
 export default function Home() {
   return (
+       <div className="p-6">
+      <img src="/logo.png" alt="Logo" width={48} height={48} />
+      <h1 className="text-2xl font-bold mt-2">Welcome to Global Scholarships</h1>
+    </div>
+  );
+}
     <Layout>
       <main className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-800 text-white font-sans">
         {/* Hero Section */}
