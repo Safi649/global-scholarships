@@ -2,22 +2,23 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa';
+import Image from 'next/image';
 import Layout from '../components/layout';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 
 export default function Home() {
+  const [user] = useAuthState(auth);
+
   return (
-       <div className="p-6">
-      <img src="/logo.png" alt="Logo" width={48} height={48} />
-      <h1 className="text-2xl font-bold mt-2">Welcome to Global Scholarships</h1>
-    </div>
-  );
-}
     <Layout>
       <main className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-800 text-white font-sans">
+        
         {/* Hero Section */}
         <section className="text-center py-20 px-6">
+          <div className="flex justify-center mb-6">
+            <Image src="/logo.png" alt="Logo" width={48} height={48} />
+          </div>
           <motion.h1 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }} 
@@ -93,7 +94,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* About */}
+        {/* About Section */}
         <section className="py-16 px-6 bg-gray-100 text-gray-900 text-center">
           <h2 className="text-3xl font-bold mb-6">About Global Scholarships</h2>
           <p className="max-w-3xl mx-auto">
@@ -101,7 +102,7 @@ export default function Home() {
           </p>
         </section>
 
-        {/* WhatsApp Join Button */}
+        {/* WhatsApp Group Join Button */}
         <section className="text-center py-12 bg-white">
           <a
             href="https://chat.whatsapp.com/Ll89aBgITG74uXzrSuoyKb"
