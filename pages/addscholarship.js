@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { app } from "../firebaseConfig";
-import { useAuth } from "../context/AuthContext"; // assuming you have auth context
-import { useRouter } from "next/router";
+import { app, auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function AddScholarships() {
-  const { user } = useAuth();
-  const router = useRouter();
+  const [user] = useAuthState(auth);
   const db = getFirestore(app);
 
   const [title, setTitle] = useState("");
@@ -16,6 +14,7 @@ export default function AddScholarships() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Restrict page to only you
   if (!user || user.email !== "muhammadabbassafi332@gmail.com") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
