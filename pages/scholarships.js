@@ -1,7 +1,8 @@
+// scholarships.js
+
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
-import { motion } from "framer-motion";
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
@@ -9,47 +10,34 @@ export default function Scholarships() {
   useEffect(() => {
     const fetchScholarships = async () => {
       const querySnapshot = await getDocs(collection(db, "scholarships"));
-      const data = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setScholarships(data);
     };
     fetchScholarships();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-        🌍 Latest Scholarships
-      </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {scholarships.map((scholarship) => (
-          <motion.div
-            key={scholarship.id}
-            className="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between border border-gray-200"
-            whileHover={{ scale: 1.03 }}
-            transition={{ duration: 0.3 }}
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold text-center mb-8">Latest Scholarships</h1>
+      <div className="grid md:grid-cols-3 gap-6">
+        {scholarships.map((sch) => (
+          <div
+            key={sch.id}
+            className="bg-white rounded-xl shadow-lg p-5 hover:shadow-2xl transition-all duration-300"
           >
-            <div>
-              <h2 className="text-xl font-semibold text-blue-700 mb-3">
-                {scholarship.title}
-              </h2>
-              <p className="text-gray-600 mb-4 line-clamp-3">
-                {scholarship.description}
-              </p>
-            </div>
-            {scholarship.link && (
+            <h2 className="text-xl font-semibold mb-2">{sch.title}</h2>
+            <p className="text-gray-600 mb-4">{sch.description}</p>
+            {sch.link && (
               <a
-                href={scholarship.link}
+                href={sch.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300 text-center"
+                className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
               >
-                Apply Now
+                Visit Scholarship
               </a>
             )}
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
