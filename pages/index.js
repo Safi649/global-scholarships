@@ -44,18 +44,6 @@ export default function Home() {
               Browse Scholarships
             </Link>
           </motion.div>
-
-          {/* 🔗 Add Scholarship Link */}
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ delay: 1.5 }}
-            className="mt-6"
-          >
-            <Link href="/addscholarship" className="underline text-white hover:text-gray-300 transition">
-              ➕ Add Scholarship
-            </Link>
-          </motion.div>
         </section>
 
         {/* Features */}
