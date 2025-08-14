@@ -1,13 +1,15 @@
+// addscholarship.js
+
 import { useState } from "react";
+import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { useAuth } from "../authContext"; // Assuming you have auth context
+import { useRouter } from "next/router";
 
 export default function AddScholarship() {
-  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [link, setLink] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,57 +17,54 @@ export default function AddScholarship() {
       alert("Please fill all fields");
       return;
     }
-
-    try {
-      await addDoc(collection(db, "scholarships"), {
-        title,
-        description,
-        link,
-        createdAt: serverTimestamp(),
-      });
-      setTitle("");
-      setDescription("");
-      setLink("");
-      alert("Scholarship added successfully!");
-    } catch (error) {
-      console.error("Error adding scholarship: ", error);
-    }
+    await addDoc(collection(db, "scholarships"), {
+      title,
+      description,
+      link
+    });
+    router.push("/scholarships");
   };
 
-  // Only show form to you
-  if (!user || user.email !== "muhammadabbassafi332@gmail.com") {
-    return null;
-  }
-
   return (
-    <div className="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-lg mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-center text-blue-600">
-        Add Scholarship
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          Add New Scholarship
+        </h2>
+
+        <label className="block mb-2 font-medium">Title</label>
         <input
           type="text"
-          placeholder="Scholarship Title"
+          placeholder="Enter scholarship title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         />
+
+        <label className="block mb-2 font-medium">Description</label>
         <textarea
-          placeholder="Scholarship Description"
+          placeholder="Enter scholarship description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+          rows="4"
         />
+
+        <label className="block mb-2 font-medium">Scholarship Link</label>
         <input
           type="url"
-          placeholder="Scholarship Link"
+          placeholder="https://example.com"
           value={link}
           onChange={(e) => setLink(e.target.value)}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
         />
+
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg font-semibold transition"
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
         >
           Add Scholarship
         </button>
