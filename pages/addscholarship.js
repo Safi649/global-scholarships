@@ -1,179 +1,138 @@
-// pages/addscholarships.js
+import { useState, useEffect } from "react";
+import { db, storage } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-import { useEffect, useState } from "react";
-import { db, storage, auth } from "../firebase";
-import {
-  addDoc,
-  collection,
-  serverTimestamp
-} from "firebase/firestore";
-import {
-  ref,
-  uploadBytesResumable,
-  getDownloadURL
-} from "firebase/storage";
-import { onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/router";
-
-export default function AddScholarship() {
-  const [user, setUser] = useState(null);
+export default function AddScholarships() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const router = useRouter();
+  const [website, setWebsite] = useState("");
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
-  // ✅ Admin-only access
+  const ADMIN_EMAIL = "muhammadabbassafi332@gmail.com"; // Only this email can add
+
+  // Track auth state
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser?.email === "muhammadabbassafi332@gmail.com") {
-        setUser(firebaseUser);
-      } else {
-        router.push("/");
-      }
+    const auth = getAuth();
+    return onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
     });
-    return () => unsubscribe();
   }, []);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => setImageUrl(e.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDragDrop = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => setImageUrl(e.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
 
-  const handleUpload = async () => {
-    if (!title || !description || !deadline || !imageFile) {
-      alert("Please fill in all fields and upload an image.");
+    if (!user) {
+      alert("You must be logged in to add a scholarship.");
       return;
     }
 
-    setUploading(true);
+    if (user.email !== ADMIN_EMAIL) {
+      alert("You are not authorized to add scholarships.");
+      return;
+    }
 
-    const storageRef = ref(storage, `scholarships/${Date.now()}_${imageFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+    if (!title || !description || !deadline || !website) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        alert("Image upload failed.");
-        setUploading(false);
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+    setLoading(true);
 
-        // Add to Firestore
-        await addDoc(collection(db, "scholarships"), {
-          title,
-          description,
-          deadline,
-          imageUrl: downloadURL,
-          createdAt: serverTimestamp(),
-          createdBy: user.email,
-        });
+    try {
+      let fileURL = "";
 
-        alert("Scholarship added!");
-        setTitle("");
-        setDescription("");
-        setDeadline("");
-        setImageFile(null);
-        setImageUrl("");
-        setUploadProgress(0);
-        setUploading(false);
+      // Upload file if selected
+      if (file) {
+        const fileRef = ref(storage, `scholarship_files/${Date.now()}_${file.name}`);
+        await uploadBytes(fileRef, file);
+        fileURL = await getDownloadURL(fileRef);
       }
-    );
+
+      await addDoc(collection(db, "scholarships"), {
+        title,
+        description,
+        deadline,
+        website,
+        fileURL,
+        createdAt: serverTimestamp(),
+        createdBy: user.email,
+      });
+
+      alert("Scholarship added successfully!");
+      setTitle("");
+      setDescription("");
+      setDeadline("");
+      setWebsite("");
+      setFile(null);
+    } catch (error) {
+      console.error("Error adding scholarship:", error);
+      alert("Error adding scholarship. Check console for details.");
+    }
+
+    setLoading(false);
   };
 
+  if (!user) {
+    return <p className="text-center mt-10">Please log in to add a scholarship.</p>;
+  }
+
+  if (user.email !== ADMIN_EMAIL) {
+    return <p className="text-center mt-10 text-red-500">Access denied — admin only.</p>;
+  }
+
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Add Scholarship
-      </h2>
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-xl mt-10">
+      <h1 className="text-2xl font-bold mb-6">Add Scholarship</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          placeholder="Scholarship Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
 
-      <input
-        type="text"
-        placeholder="Scholarship Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-3 border rounded mb-4"
-      />
+        <textarea
+          placeholder="Scholarship Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full border p-2 rounded"
+        ></textarea>
 
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="w-full p-3 border rounded mb-4"
-        rows={5}
-      />
+        <input
+          type="date"
+          value={deadline}
+          onChange={(e) => setDeadline(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
 
-      <input
-        type="date"
-        value={deadline}
-        onChange={(e) => setDeadline(e.target.value)}
-        className="w-full p-3 border rounded mb-4"
-      />
+        <input
+          type="url"
+          placeholder="Scholarship Website"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+          className="w-full border p-2 rounded"
+        />
 
-      <div
-        className="w-full p-6 border-dashed border-2 rounded-lg text-center mb-4 bg-gray-50"
-        onDrop={handleDragDrop}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        <p className="text-gray-500">Drag & Drop image here</p>
-        <p className="text-gray-400 text-sm">or</p>
         <input
           type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="mt-2"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="w-full"
         />
-      </div>
 
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          alt="Preview"
-          className="w-full h-auto rounded mb-4"
-        />
-      )}
-
-      {uploading && (
-        <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-          <div
-            className="bg-blue-500 h-2 rounded-full"
-            style={{ width: `${uploadProgress}%` }}
-          ></div>
-        </div>
-      )}
-
-      <button
-        onClick={handleUpload}
-        disabled={uploading}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded"
-      >
-        {uploading ? "Uploading..." : "Add Scholarship"}
-      </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        >
+          {loading ? "Adding..." : "Add Scholarship"}
+        </button>
+      </form>
     </div>
   );
 }
