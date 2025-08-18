@@ -1,79 +1,149 @@
-// 📄 pages/scholarships.js
+// 📁 pages/scholarships.js
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editData, setEditData] = useState({ title: "", description: "", link: "" });
 
-  // ✅ Fetch scholarships from Firestore
+  // ✅ Check logged in user
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsubscribe();
+  }, []);
+
+  // ✅ Fetch scholarships
   useEffect(() => {
     const fetchScholarships = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "scholarships"));
-        const data = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setScholarships(data);
-      } catch (error) {
-        console.error("❌ Error fetching scholarships:", error);
-      } finally {
-        setLoading(false);
-      }
+      const querySnapshot = await getDocs(collection(db, "scholarships"));
+      const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      setScholarships(data);
     };
-
     fetchScholarships();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-10 px-5">
-      <motion.h1
-        className="text-4xl font-bold text-center mb-8 text-blue-600"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        🌍 Global Scholarships
-      </motion.h1>
+  // ✅ Delete scholarship
+  const handleDelete = async (id) => {
+    await deleteDoc(doc(db, "scholarships", id));
+    setScholarships(scholarships.filter((s) => s.id !== id));
+  };
 
-      {loading ? (
-        <p className="text-center text-gray-500">Loading scholarships...</p>
-      ) : scholarships.length === 0 ? (
-        <p className="text-center text-gray-500">No scholarships found.</p>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {scholarships.map((scholarship, index) => (
-            <motion.div
-              key={scholarship.id}
-              className="bg-white p-5 rounded-2xl shadow-md hover:shadow-lg transition"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-            >
-              <h2 className="text-xl font-semibold text-gray-800">
-                {scholarship.title}
-              </h2>
-              <p className="text-gray-600 mt-2">{scholarship.description}</p>
-              <p className="text-sm text-gray-500 mt-1">
-                📅 Deadline: {scholarship.deadline}
-              </p>
-              {scholarship.link && (
-                <Link
-                  href={scholarship.link}
-                  target="_blank"
-                  className="inline-block mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  Apply Now
-                </Link>
-              )}
-            </motion.div>
-          ))}
-        </div>
-      )}
+  // ✅ Start editing
+  const handleEditClick = (scholarship) => {
+    setEditingId(scholarship.id);
+    setEditData({
+      title: scholarship.title,
+      description: scholarship.description,
+      link: scholarship.link,
+    });
+  };
+
+  // ✅ Save edit
+  const handleSaveEdit = async () => {
+    const docRef = doc(db, "scholarships", editingId);
+    await updateDoc(docRef, editData);
+    setScholarships(
+      scholarships.map((s) =>
+        s.id === editingId ? { ...s, ...editData } : s
+      )
+    );
+    setEditingId(null);
+  };
+
+  return (
+    <div className="p-8 min-h-screen bg-gray-50">
+      <h1 className="text-4xl font-extrabold text-center mb-10 text-indigo-600">
+        🎓 Scholarships
+      </h1>
+
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {scholarships.map((sch) => (
+          <div
+            key={sch.id}
+            className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
+          >
+            {editingId === sch.id ? (
+              // ✏️ Editing mode
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={editData.title}
+                  onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  placeholder="Title"
+                />
+                <textarea
+                  value={editData.description}
+                  onChange={(e) =>
+                    setEditData({ ...editData, description: e.target.value })
+                  }
+                  className="w-full border px-3 py-2 rounded-lg"
+                  placeholder="Description"
+                />
+                <input
+                  type="url"
+                  value={editData.link}
+                  onChange={(e) => setEditData({ ...editData, link: e.target.value })}
+                  className="w-full border px-3 py-2 rounded-lg"
+                  placeholder="Scholarship Link"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleSaveEdit}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // 📄 Normal card view
+              <>
+                <h2 className="text-xl font-bold text-gray-800">{sch.title}</h2>
+                <p className="text-gray-600 mt-2">{sch.description}</p>
+                {sch.link && (
+                  <a
+                    href={sch.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-500 font-medium mt-3 inline-block hover:underline"
+                  >
+                    🌐 Visit Scholarship
+                  </a>
+                )}
+
+                {/* 🔐 Show only if logged in */}
+                {user && (
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={() => handleEditClick(sch)}
+                      className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(sch.id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
