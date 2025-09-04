@@ -7,12 +7,21 @@ import { onAuthStateChanged } from "firebase/auth";
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
   const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editData, setEditData] = useState({ title: "", description: "", link: "" });
 
-  // ✅ Check logged in user
+  // ✅ Track logged-in user
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      // ✅ Check admin email
+      if (u?.email === "muhammadabbassafi332@gmail.com") {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    });
     return () => unsubscribe();
   }, []);
 
@@ -26,14 +35,16 @@ export default function Scholarships() {
     fetchScholarships();
   }, []);
 
-  // ✅ Delete scholarship
+  // ✅ Delete scholarship (admin only)
   const handleDelete = async (id) => {
+    if (!isAdmin) return;
     await deleteDoc(doc(db, "scholarships", id));
     setScholarships(scholarships.filter((s) => s.id !== id));
   };
 
   // ✅ Start editing
   const handleEditClick = (scholarship) => {
+    if (!isAdmin) return;
     setEditingId(scholarship.id);
     setEditData({
       title: scholarship.title,
@@ -44,6 +55,7 @@ export default function Scholarships() {
 
   // ✅ Save edit
   const handleSaveEdit = async () => {
+    if (!isAdmin) return;
     const docRef = doc(db, "scholarships", editingId);
     await updateDoc(docRef, editData);
     setScholarships(
@@ -122,8 +134,8 @@ export default function Scholarships() {
                   </a>
                 )}
 
-                {/* 🔐 Show only if logged in */}
-                {user && (
+                {/* 🔐 Show buttons only for admin */}
+                {isAdmin && (
                   <div className="flex gap-3 mt-4">
                     <button
                       onClick={() => handleEditClick(sch)}
