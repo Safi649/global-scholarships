@@ -1,74 +1,89 @@
-// addscholarship.js
-
 import { useState } from "react";
-import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/router";
+import { FiBook, FiMapPin, FiAward } from "react-icons/fi";
 
 export default function AddScholarship() {
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [link, setLink] = useState("");
+  const [country, setCountry] = useState("");
+  const [university, setUniversity] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !description || !link) {
-      alert("Please fill all fields");
-      return;
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "scholarships"), {
+        title,
+        country,
+        university,
+        createdAt: serverTimestamp(),
+      });
+      router.push("/scholarships");
+    } catch (error) {
+      console.error("Error adding scholarship:", error);
+    } finally {
+      setLoading(false);
     }
-    await addDoc(collection(db, "scholarships"), {
-      title,
-      description,
-      link
-    });
-    router.push("/scholarships");
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-lg p-8 w-full max-w-lg"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Add New Scholarship
-        </h2>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 transform hover:scale-105 transition-transform duration-300">
+        <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">Add New Scholarship</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Title */}
+          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
+            <FiBook className="text-blue-500 text-xl" />
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Scholarship Title"
+              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400"
+            />
+          </div>
 
-        <label className="block mb-2 font-medium">Title</label>
-        <input
-          type="text"
-          placeholder="Enter scholarship title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-        />
+          {/* Country */}
+          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
+            <FiMapPin className="text-green-500 text-xl" />
+            <input
+              type="text"
+              required
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              placeholder="Country"
+              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400"
+            />
+          </div>
 
-        <label className="block mb-2 font-medium">Description</label>
-        <textarea
-          placeholder="Enter scholarship description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-          rows="4"
-        />
+          {/* University */}
+          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
+            <FiAward className="text-yellow-500 text-xl" />
+            <input
+              type="text"
+              required
+              value={university}
+              onChange={(e) => setUniversity(e.target.value)}
+              placeholder="University"
+              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400"
+            />
+          </div>
 
-        <label className="block mb-2 font-medium">Scholarship Link</label>
-        <input
-          type="url"
-          placeholder="https://example.com"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
-        >
-          Add Scholarship
-        </button>
-      </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all"
+          >
+            {loading ? "Adding..." : "Add Scholarship"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
