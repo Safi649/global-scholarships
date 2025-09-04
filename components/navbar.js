@@ -21,15 +21,15 @@ export default function Navbar() {
         </Link>
 
         {/* Navigation Links */}
-        <div className="flex space-x-6 text-sm font-medium text-gray-700 items-center">
-          <Link href="/" className="hover:text-blue-600">Home</Link>
-          <Link href="/about" className="hover:text-blue-600">About</Link>
-          <Link href="/contact" className="hover:text-blue-600">Contact</Link>
-          <Link href="/terms" className="hover:text-blue-600">Terms</Link>
-          <Link href="/disclaimer" className="hover:text-blue-600">Disclaimer</Link>
+        <div className="flex space-x-6 items-center text-sm font-medium text-gray-700">
+          <Link href="/" className="hover:text-blue-600 transition">Home</Link>
+          <Link href="/about" className="hover:text-blue-600 transition">About</Link>
+          <Link href="/contact" className="hover:text-blue-600 transition">Contact</Link>
+          <Link href="/terms" className="hover:text-blue-600 transition">Terms</Link>
+          <Link href="/disclaimer" className="hover:text-blue-600 transition">Disclaimer</Link>
 
-          {/* Desktop auth actions */}
-          <div className="hidden md:flex md:items-center md:space-x-3">
+          {/* Auth actions */}
+          <div className="hidden md:flex items-center space-x-3">
             {!user ? (
               <>
                 <Link
@@ -37,14 +37,14 @@ export default function Navbar() {
                   className="flex items-center space-x-1 bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
                 >
                   <FiLogIn />
-                  <span className="ml-1">Login</span>
+                  <span>Login</span>
                 </Link>
                 <Link
                   href="/register"
                   className="flex items-center space-x-1 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
                 >
                   <FiUserPlus />
-                  <span className="ml-1">Register</span>
+                  <span>Register</span>
                 </Link>
               </>
             ) : (
@@ -57,7 +57,7 @@ export default function Navbar() {
                   className="flex items-center space-x-1 bg-red-600 text-white px-4 py-2 rounded-lg shadow hover:bg-red-700 transition"
                 >
                   <FiLogOut />
-                  <span className="ml-1">Logout</span>
+                  <span>Logout</span>
                 </button>
               </>
             )}
