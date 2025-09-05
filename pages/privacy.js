@@ -1,53 +1,46 @@
+// pages/privacy-policy.js
 import Head from "next/head";
 import Layout from "../components/layout";
 
-export default function Privacy() {
+export default function PrivacyPolicy() {
   return (
     <Layout>
       <Head>
         <title>Privacy Policy | Global Scholarships</title>
         <meta
           name="description"
-          content="Read the Privacy Policy of Global Scholarships, how we handle your data and protect your information."
+          content="Read the privacy policy of Global Scholarships. We value your privacy and data security."
         />
       </Head>
 
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-12">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">
-          Privacy Policy
-        </h1>
+      <div className="min-h-screen bg-gray-50 px-6 py-12">
+        <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+          <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">Privacy Policy</h1>
 
-        <p className="mb-4">
-          At <strong>Global Scholarships</strong>, we value your privacy. This Privacy Policy explains how we collect, use, and protect your information when you visit our website.
-        </p>
+          <p className="mb-4 text-gray-700">
+            At Global Scholarships, we value your privacy. All the personal information
+            collected on our website is used solely for providing and improving our services.
+          </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">Information We Collect</h2>
-        <p className="mb-4">
-          We may collect information such as your email address, feedback, or other data you voluntarily provide when using our website or subscribing to updates.
-        </p>
+          <h2 className="text-2xl font-semibold mb-4">Information We Collect</h2>
+          <p className="mb-4 text-gray-700">
+            We may collect your name, email address, and review data when you submit reviews
+            or contact us. We do not share your information with third parties except as
+            required by law.
+          </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">How We Use Your Information</h2>
-        <p className="mb-4">
-          Your information is used to provide a better experience, improve our website, respond to inquiries, and share scholarship updates.
-        </p>
+          <h2 className="text-2xl font-semibold mb-4">Use of Information</h2>
+          <p className="mb-4 text-gray-700">
+            Your information is used to manage scholarship reviews, respond to inquiries,
+            and improve our website experience.
+          </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-3">Cookies</h2>
-        <p className="mb-4">
-          We may use cookies to enhance your browsing experience. You can control cookies through your browser settings.
-        </p>
-
-        <h2 className="text-2xl font-semibold mt-6 mb-3">Third-Party Services</h2>
-        <p className="mb-4">
-          We may use third-party services for analytics or ads (such as Google AdSense). These services may collect information automatically. We encourage you to review their privacy policies.
-        </p>
-
-        <h2 className="text-2xl font-semibold mt-6 mb-3">Contact Us</h2>
-        <p>
-          If you have questions about this Privacy Policy, you can contact us at{" "}
-          <a href="mailto:safi65225@gmail.com" className="text-blue-600 hover:underline">
-            safi65225@gmail.com
-          </a>.
-        </p>
+          <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
+          <p className="text-gray-700">
+            If you have any questions regarding this Privacy Policy, please contact us at:
+            <strong className="text-indigo-600"> info@globalscholarships.com</strong>.
+          </p>
+        </div>
       </div>
     </Layout>
   );
