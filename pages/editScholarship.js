@@ -1,31 +1,21 @@
-// 📁 pages/editScholarship.js
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import {
-  getDoc,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
-import { db, storage } from "../firebase"; // Update path if different
+import { getDoc, doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase"; // ✅ using only Firestore
 
 export default function EditScholarship() {
   const router = useRouter();
   const { id } = router.query;
 
   const [formData, setFormData] = useState({
-    name: "",
-    country: "",
-    eligibleCountry: "",
-    applyLink: "",
-    imageUrl: "",
+    title: "",
+    description: "",
+    deadline: "",
+    location: "",
+    eligibleCountries: "",
+    link: "",
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,7 +25,6 @@ export default function EditScholarship() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setFormData(docSnap.data());
-          setPreview(docSnap.data().imageUrl);
         } else {
           alert("Scholarship not found!");
           router.push("/scholarships");
@@ -52,28 +41,12 @@ export default function EditScholarship() {
     }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      let updatedData = { ...formData };
-
-      // If a new image was selected
-      if (imageFile) {
-        const storageRef = ref(storage, `scholarshipImages/${id}`);
-        await uploadBytes(storageRef, imageFile);
-        const downloadURL = await getDownloadURL(storageRef);
-        updatedData.imageUrl = downloadURL;
-      }
-
-      await updateDoc(doc(db, "scholarships", id), updatedData);
+      await updateDoc(doc(db, "scholarships", id), formData);
       alert("Scholarship updated successfully!");
       router.push("/scholarships");
     } catch (error) {
@@ -89,66 +62,71 @@ export default function EditScholarship() {
       <h2 className="text-2xl font-bold mb-4">Edit Scholarship</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block font-medium">Scholarship Name</label>
+          <label className="block font-medium">Scholarship Title</label>
           <input
             type="text"
-            name="name"
+            name="title"
             className="w-full border rounded px-3 py-2"
-            value={formData.name}
+            value={formData.title}
             onChange={handleChange}
             required
           />
         </div>
 
         <div>
-          <label className="block font-medium">Country</label>
-          <input
-            type="text"
-            name="country"
+          <label className="block font-medium">Description</label>
+          <textarea
+            name="description"
+            rows="4"
             className="w-full border rounded px-3 py-2"
-            value={formData.country}
+            value={formData.description}
             onChange={handleChange}
             required
+          ></textarea>
+        </div>
+
+        <div>
+          <label className="block font-medium">Deadline</label>
+          <input
+            type="date"
+            name="deadline"
+            className="w-full border rounded px-3 py-2"
+            value={formData.deadline}
+            onChange={handleChange}
           />
         </div>
 
         <div>
-          <label className="block font-medium">Eligible Country</label>
+          <label className="block font-medium">Location</label>
           <input
             type="text"
-            name="eligibleCountry"
+            name="location"
             className="w-full border rounded px-3 py-2"
-            value={formData.eligibleCountry}
+            value={formData.location}
             onChange={handleChange}
-            required
           />
         </div>
 
         <div>
-          <label className="block font-medium">Apply Link</label>
+          <label className="block font-medium">Eligible Countries</label>
+          <input
+            type="text"
+            name="eligibleCountries"
+            className="w-full border rounded px-3 py-2"
+            value={formData.eligibleCountries}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium">Application Link</label>
           <input
             type="url"
-            name="applyLink"
+            name="link"
             className="w-full border rounded px-3 py-2"
-            value={formData.applyLink}
+            value={formData.link}
             onChange={handleChange}
             required
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Image</label>
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-32 h-32 object-cover mb-2 rounded border"
-            />
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
           />
         </div>
 
