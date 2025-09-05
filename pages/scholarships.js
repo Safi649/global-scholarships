@@ -1,16 +1,17 @@
-// pages/scholarships.js
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { motion } from "framer-motion";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useRouter } from "next/router";
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState({});
   const [user] = useAuthState(auth);
+  const router = useRouter();
 
   const ADMIN_EMAIL = "muhammadabbassafi332@gmail.com"; // ✅ your admin email
 
@@ -91,9 +92,7 @@ export default function Scholarships() {
                     whileHover={{ scale: 1.03 }}
                     className="relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group"
                   >
-                    {/* Decorative Header */}
                     <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-
                     <div className="p-6 flex flex-col justify-between h-full">
                       <div>
                         <h3 className="text-2xl font-bold text-gray-800 mb-3 group-hover:text-indigo-600 transition">
@@ -125,34 +124,29 @@ export default function Scholarships() {
                           <strong>Location:</strong>{" "}
                           {sch.location || sch.hostCountry || "Worldwide"}
                         </p>
-
-                        {/* ✅ Eligible Countries */}
-                        {sch.eligibleCountries && (
-                          <p className="text-gray-500 text-sm mb-4">
-                            <strong>Eligible Countries:</strong>{" "}
-                            {sch.eligibleCountries}
-                          </p>
-                        )}
+                        <p className="text-gray-500 text-sm mb-4">
+                          <strong>Eligible Countries:</strong>{" "}
+                          {sch.eligibleCountries || "Open to All"}
+                        </p>
                       </div>
 
-                      {/* Buttons */}
                       <div className="flex gap-2 mt-auto">
                         <a
-                          href={sch.link || "#"}
+                          href={sch.link || sch.applyLink || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 text-center bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-indigo-700 transition"
                         >
-                          {sch.link ? "Apply Now" : "Details"}
+                          {sch.link || sch.applyLink ? "Apply Now" : "Details"}
                         </a>
 
-                        {/* ✅ Admin Controls */}
+                        {/* ✅ Show edit/delete only for admin */}
                         {user?.email === ADMIN_EMAIL && (
                           <>
                             <button
                               className="px-3 py-2 rounded-lg bg-yellow-500 text-white font-medium shadow hover:bg-yellow-600 transition"
                               onClick={() =>
-                                alert("Edit functionality coming soon...")
+                                router.push(`/editScholarship?id=${sch.id}`)
                               }
                             >
                               ✏️ Edit
