@@ -1,194 +1,206 @@
+// pages/scholarships.js
 import { useState, useEffect } from "react";
-import { db } from "../firebase";
-import { collection, query, onSnapshot, deleteDoc, doc, updateDoc } from "firebase/firestore";
-import { auth } from "../firebase";
-import { FiBook, FiMapPin, FiAward } from "react-icons/fi";
+import { auth, db } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import {
+  collection,
+  query,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { motion } from "framer-motion";
+import { FiMapPin, FiGlobe, FiCalendar, FiEdit, FiTrash2, FiExternalLink } from "react-icons/fi";
 
 export default function Scholarships() {
-  const [scholarships, setScholarships] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [editData, setEditData] = useState({ title: "", country: "", university: "", description: "", link: "" });
-  const [user, setUser] = useState(null);
+  const [user, loadingUser] = useAuthState(auth);
+  const adminEmail = "muhammadabbassafi332@gmail.com";
+  const isAdmin = !!user && user.email === adminEmail;
+
+  const [list, setList] = useState([]);
   const [expanded, setExpanded] = useState({});
-  const isAdmin = user?.email === "muhammadabbassafi332@gmail.com";
+  const [editingId, setEditingId] = useState(null);
+  const [editData, setEditData] = useState({
+    name: "",
+    country: "",
+    hostCountry: "",
+    details: "",
+    deadline: "",
+    link: "",
+  });
+  const [busyId, setBusyId] = useState(null);
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
-    const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => setUser(currentUser));
     const q = query(collection(db, "scholarships"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setScholarships(data);
-    });
+    const unsub = onSnapshot(q, (snap) => {
+      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      // sort by createdAt desc if available
+      data.sort((a, b) => {
+        const ta = a.createdAt?.seconds || 0;
+        const tb = b.createdAt?.seconds || 0;
+        return tb - ta;
+      });
+      setList(data);
+    }, (err) => console.error("Snapshot error:", err));
 
-    return () => {
-      unsubscribe();
-      unsubscribeAuth();
-    };
+    return () => unsub();
   }, []);
 
-  const handleEditClick = (sch) => {
+  const toggle = (id) => setExpanded((p) => ({ ...p, [id]: !p[id] }));
+
+  const beginEdit = (sch) => {
     setEditingId(sch.id);
-    setEditData({ title: sch.title, country: sch.country, university: sch.university, description: sch.description, link: sch.link });
+    setEditData({
+      name: sch.name || "",
+      country: sch.country || "",
+      hostCountry: sch.hostCountry || "",
+      details: sch.details || "",
+      deadline: sch.deadline || "",
+      link: sch.link || "",
+    });
+    setFeedback(null);
   };
 
-  const handleSaveEdit = async () => {
+  const saveEdit = async () => {
     if (!editingId) return;
+    setBusyId(editingId);
     try {
       await updateDoc(doc(db, "scholarships", editingId), editData);
+      setFeedback({ type: "success", text: "Updated successfully." });
       setEditingId(null);
     } catch (err) {
-      console.error("Error updating:", err);
+      console.error("Update error:", err);
+      setFeedback({ type: "error", text: "Update failed. Make sure you are admin." });
+    } finally {
+      setBusyId(null);
     }
   };
 
   const handleDelete = async (id) => {
+    const ok = confirm("Delete this scholarship? This action cannot be undone.");
+    if (!ok) return;
+    setBusyId(id);
     try {
       await deleteDoc(doc(db, "scholarships", id));
+      setFeedback({ type: "success", text: "Deleted successfully." });
     } catch (err) {
-      console.error("Error deleting:", err);
+      console.error("Delete error:", err);
+      setFeedback({ type: "error", text: "Delete failed. Make sure you are admin." });
+    } finally {
+      setBusyId(null);
     }
   };
 
-  const toggleExpand = (id) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  const formatDate = (d) => {
+    if (!d) return "No deadline";
+    // if already ISO string/date-like
+    try {
+      const dt = new Date(d);
+      if (!isNaN(dt)) return dt.toLocaleDateString();
+    } catch {}
+    // fallback: return as-is
+    return d;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {scholarships.map((sch) => {
-          const isExpanded = expanded[sch.id];
-          return (
-            <div
-              key={sch.id}
-              className="bg-white rounded-3xl shadow-2xl overflow-hidden hover:scale-105 transition-transform duration-300 flex flex-col"
-            >
-              {/* Gradient header */}
-              <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-indigo-900 to-black text-gray-100 py-12 px-6">
+      <div className="max-w-7xl mx-auto">
+        <header className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-extrabold">Scholarships</h1>
+            <p className="text-sm text-gray-300">Explore the latest opportunities — stay inspired.</p>
+          </div>
+          <div className="text-sm text-gray-400">
+            {isAdmin ? <span>Signed in as admin</span> : <span>Viewing as guest</span>}
+          </div>
+        </header>
 
-              <div className="p-6 flex flex-col flex-grow space-y-3">
-                {editingId === sch.id ? (
-                  <div className="space-y-3 flex-grow">
-                    <input
-                      type="text"
-                      value={editData.title}
-                      onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                      className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Title"
-                    />
-                    <input
-                      type="text"
-                      value={editData.country}
-                      onChange={(e) => setEditData({ ...editData, country: e.target.value })}
-                      className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Country"
-                    />
-                    <input
-                      type="text"
-                      value={editData.university}
-                      onChange={(e) => setEditData({ ...editData, university: e.target.value })}
-                      className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      placeholder="University"
-                    />
-                    <textarea
-                      value={editData.description}
-                      onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                      className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 h-32 resize-none"
-                      placeholder="Description"
-                    />
-                    <input
-                      type="url"
-                      value={editData.link}
-                      onChange={(e) => setEditData({ ...editData, link: e.target.value })}
-                      className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Scholarship Link"
-                    />
-                    <div className="flex gap-3 mt-2">
-                      <button
-                        onClick={handleSaveEdit}
-                        className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 shadow-md"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
-                      >
-                        Cancel
-                      </button>
-                    </div>
+        {feedback && (
+          <div className={`mb-6 p-3 rounded-md text-sm ${feedback.type === "success" ? "bg-green-800/60 text-green-200" : "bg-red-800/60 text-red-200"}`}>
+            {feedback.text}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {list.map((sch) => {
+            const isExpanded = !!expanded[sch.id];
+            const editing = editingId === sch.id;
+            return (
+              <motion.article
+                key={sch.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.02 }}
+                className="relative bg-gradient-to-br from-white/4 to-white/2 border border-white/10 rounded-2xl p-5 backdrop-blur-sm shadow-xl overflow-hidden"
+              >
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 blur opacity-20 rounded-2xl"></div>
+                <div className="relative z-10">
+                  {/* header */}
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-lg font-semibold">{sch.name}</h3>
+                    <div className="text-xs text-gray-300">{formatDate(sch.deadline)}</div>
                   </div>
-                ) : (
-                  <>
-                    {/* Title */}
-                    <h2 className="text-2xl font-bold text-gray-800 group-hover:text-indigo-600 transition">
-                      {sch.title}
-                    </h2>
 
-                    {/* Country & University */}
-                    <div className="flex items-center space-x-4 mt-2 text-gray-600">
-                      {sch.country && (
-                        <div className="flex items-center space-x-1">
-                          <FiMapPin className="text-green-500" />
-                          <span>{sch.country}</span>
-                        </div>
+                  {/* meta */}
+                  <div className="flex flex-wrap gap-3 mt-3 text-sm text-gray-300">
+                    {sch.country && (<span className="inline-flex items-center gap-1"><FiMapPin />{sch.country}</span>)}
+                    {sch.hostCountry && (<span className="inline-flex items-center gap-1"><FiGlobe />{sch.hostCountry}</span>)}
+                  </div>
+
+                  {/* content */}
+                  {editing ? (
+                    <div className="mt-4 space-y-2">
+                      <input className="w-full rounded-md px-3 py-2 bg-black/10 text-white" value={editData.name} onChange={(e)=>setEditData({...editData, name: e.target.value})}/>
+                      <input className="w-full rounded-md px-3 py-2 bg-black/10 text-white" value={editData.country} onChange={(e)=>setEditData({...editData, country: e.target.value})}/>
+                      <input className="w-full rounded-md px-3 py-2 bg-black/10 text-white" value={editData.hostCountry} onChange={(e)=>setEditData({...editData, hostCountry: e.target.value})}/>
+                      <textarea className="w-full rounded-md px-3 py-2 bg-black/10 text-white" rows={4} value={editData.details} onChange={(e)=>setEditData({...editData, details: e.target.value})}/>
+                      <div className="flex gap-2">
+                        <button disabled={busyId===sch.id} onClick={saveEdit} className="px-3 py-2 rounded-md bg-indigo-600">Save</button>
+                        <button onClick={()=>setEditingId(null)} className="px-3 py-2 rounded-md bg-white/5">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className={`mt-4 text-sm leading-relaxed text-gray-200 ${!isExpanded ? "line-clamp-4" : ""}`}>
+                        {sch.details || "No description provided."}
+                      </p>
+
+                      {sch.details && (
+                        <button onClick={()=>toggle(sch.id)} className="mt-3 text-indigo-300 text-sm font-medium">
+                          {isExpanded ? "Read Less" : "Read More"}
+                        </button>
                       )}
-                      {sch.university && (
-                        <div className="flex items-center space-x-1">
-                          <FiAward className="text-yellow-500" />
-                          <span>{sch.university}</span>
-                        </div>
+                    </>
+                  )}
+
+                  {/* link + admin actions */}
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <div>
+                      {sch.link && (
+                        <a href={sch.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-indigo-200 text-sm">
+                          <FiExternalLink /> Visit
+                        </a>
                       )}
                     </div>
 
-                    {/* Description */}
-                    <p className={`text-gray-600 mt-3 leading-relaxed transition-all ${!isExpanded ? "line-clamp-3" : ""}`}>
-                      {sch.description}
-                    </p>
-                    {sch.description && (
-                      <button
-                        onClick={() => toggleExpand(sch.id)}
-                        className="text-indigo-600 mt-2 font-semibold hover:underline self-start"
-                      >
-                        {isExpanded ? "Read Less" : "Read More"}
-                      </button>
-                    )}
-
-                    {/* Link */}
-                    {sch.link && (
-                      <a
-                        href={sch.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-3 inline-flex items-center text-indigo-600 font-semibold hover:underline"
-                      >
-                        🌐 Visit Scholarship
-                      </a>
-                    )}
-
-                    {/* Admin actions */}
-                    {isAdmin && (
-                      <div className="flex gap-3 mt-5">
-                        <button
-                          onClick={() => handleEditClick(sch)}
-                          className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 shadow-md"
-                        >
-                          Edit
+                    {isAdmin && !editing && (
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => beginEdit(sch)} className="p-2 bg-white/6 rounded-md hover:bg-white/10">
+                          <FiEdit />
                         </button>
-                        <button
-                          onClick={() => handleDelete(sch.id)}
-                          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-md"
-                        >
-                          Delete
+                        <button onClick={() => handleDelete(sch.id)} disabled={busyId===sch.id} className="p-2 bg-white/6 rounded-md hover:bg-red-600/30">
+                          <FiTrash2 />
                         </button>
                       </div>
                     )}
-                  </>
-                )}
-              </div>
-            </div>
-          );
-        })}
+                  </div>
+                </div>
+              </motion.article>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
