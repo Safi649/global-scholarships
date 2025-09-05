@@ -1,115 +1,225 @@
-import { useState } from "react";
-import { db } from "../firebase";
+// pages/addscholarship.js
+import { useState, useEffect } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useRouter } from "next/router";
-import { FiBook, FiMapPin, FiGlobe, FiInfo, FiCalendar } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { FiGlobe, FiMapPin, FiCalendar, FiSave, FiX, FiBook } from "react-icons/fi";
 
 export default function AddScholarship() {
-  const [name, setName] = useState("");
-  const [country, setCountry] = useState("");
-  const [hostCountry, setHostCountry] = useState("");
-  const [details, setDetails] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [user, loadingUser] = useAuthState(auth);
   const router = useRouter();
+
+  const adminEmail = "muhammadabbassafi332@gmail.com";
+  const isAdmin = !!user && user.email === adminEmail;
+
+  const [form, setForm] = useState({
+    name: "",
+    country: "",
+    hostCountry: "",
+    details: "",
+    deadline: "",
+    link: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState(null);
+
+  useEffect(() => {
+    if (!loadingUser && !isAdmin) {
+      // not redirecting — just show access denied. (Optional: redirect)
+    }
+  }, [loadingUser, isAdmin]);
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const resetForm = () =>
+    setForm({ name: "", country: "", hostCountry: "", details: "", deadline: "", link: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setMsg(null);
+
+    // simple validation
+    if (!form.name.trim()) return setMsg({ type: "error", text: "Please enter scholarship name." });
+    if (!form.deadline) return setMsg({ type: "error", text: "Please select a deadline." });
+
+    setSaving(true);
     try {
       await addDoc(collection(db, "scholarships"), {
-        name,
-        country,
-        hostCountry,
-        details,
-        deadline,
+        name: form.name.trim(),
+        country: form.country.trim() || null,
+        hostCountry: form.hostCountry.trim() || null,
+        details: form.details.trim() || null,
+        deadline: form.deadline || null,
+        link: form.link?.trim() || null,
         createdAt: serverTimestamp(),
       });
-      router.push("/scholarships");
-    } catch (error) {
-      console.error("Error adding scholarship:", error);
+
+      setMsg({ type: "success", text: "Scholarship added successfully." });
+      resetForm();
+
+      // optional: route to list
+      setTimeout(() => router.push("/scholarships"), 900);
+    } catch (err) {
+      console.error("Add scholarship error:", err);
+      setMsg({ type: "error", text: "Failed to add scholarship. Make sure you are signed in as admin." });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  // Access denied UI for non-admins
+  if (!loadingUser && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 to-black text-white px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-xl text-center bg-black/60 p-8 rounded-2xl border border-gray-700 shadow-lg"
+        >
+          <h2 className="text-2xl font-semibold mb-3">Access Denied</h2>
+          <p className="text-gray-300 mb-4">
+            Only the site administrator can add scholarships. Please log in with the admin account to continue.
+          </p>
+          <p className="text-sm text-gray-400">Admin email: <strong>{adminEmail}</strong></p>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 transform hover:scale-105 transition-transform duration-300">
-        <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">Add New Scholarship</h1>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-black text-white py-12 px-6">
+      <div className="max-w-3xl mx-auto">
+        <motion.div
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="bg-gradient-to-tr from-white/6 to-white/3 backdrop-blur-sm border border-white/10 rounded-3xl p-8 shadow-2xl"
+        >
+          <header className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight">Add Scholarship</h1>
+              <p className="text-sm text-gray-300 mt-1">Create a new scholarship — futuristic style ✨</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => { resetForm(); setMsg(null); }}
+                title="Reset"
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition"
+              >
+                <FiX />
+              </button>
+            </div>
+          </header>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name of Scholarship */}
-          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
-            <FiBook className="text-blue-500 text-xl" />
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name of Scholarship"
-              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400"
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="block">
+                <span className="text-xs text-gray-300">Name of Scholarship</span>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="e.g., Fully Funded Canada Scholarship"
+                  className="mt-1 w-full rounded-lg bg-black/40 border border-white/10 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                />
+              </label>
 
-          {/* Country */}
-          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
-            <FiMapPin className="text-green-500 text-xl" />
-            <input
-              type="text"
-              required
-              value={country}
-              onChange={(e) => setCountry(e.target.value)}
-              placeholder="Country"
-              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400"
-            />
-          </div>
+              <label className="block">
+                <span className="text-xs text-gray-300">Country</span>
+                <div className="relative mt-1">
+                  <input
+                    name="country"
+                    value={form.country}
+                    onChange={handleChange}
+                    placeholder="Origin country (optional)"
+                    className="w-full rounded-lg bg-black/40 border border-white/10 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                  />
+                  <FiMapPin className="absolute right-3 top-3 text-gray-300" />
+                </div>
+              </label>
+            </div>
 
-          {/* Host Country */}
-          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
-            <FiGlobe className="text-purple-500 text-xl" />
-            <input
-              type="text"
-              required
-              value={hostCountry}
-              onChange={(e) => setHostCountry(e.target.value)}
-              placeholder="Host Country"
-              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400"
-            />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="block">
+                <span className="text-xs text-gray-300">Host Country</span>
+                <input
+                  name="hostCountry"
+                  value={form.hostCountry}
+                  onChange={handleChange}
+                  placeholder="e.g., Canada"
+                  className="mt-1 w-full rounded-lg bg-black/40 border border-white/10 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                />
+              </label>
 
-          {/* Details / Description */}
-          <div className="flex items-start space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
-            <FiInfo className="text-yellow-500 text-xl mt-2" />
-            <textarea
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-              placeholder="Details / Description"
-              className="w-full bg-transparent focus:outline-none text-gray-800 placeholder-gray-400 resize-none h-24"
-            />
-          </div>
+              <label className="block">
+                <span className="text-xs text-gray-300">Deadline</span>
+                <div className="mt-1 relative">
+                  <input
+                    name="deadline"
+                    value={form.deadline}
+                    onChange={handleChange}
+                    type="date"
+                    className="w-full rounded-lg bg-black/40 border border-white/10 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+                  />
+                  <FiCalendar className="absolute right-3 top-3 text-gray-300" />
+                </div>
+              </label>
+            </div>
 
-          {/* Deadline */}
-          <div className="flex items-center space-x-3 bg-gray-50 rounded-lg shadow-inner px-3 py-2">
-            <FiCalendar className="text-red-500 text-xl" />
-            <input
-              type="date"
-              required
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              className="w-full bg-transparent focus:outline-none text-gray-800"
-            />
-          </div>
+            <label className="block">
+              <span className="text-xs text-gray-300">Details / Description</span>
+              <textarea
+                name="details"
+                value={form.details}
+                onChange={handleChange}
+                rows={5}
+                placeholder="Full scholarship details, eligibility, how to apply..."
+                className="mt-1 w-full rounded-lg bg-black/40 border border-white/10 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+              />
+            </label>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all"
-          >
-            {loading ? "Adding..." : "Add Scholarship"}
-          </button>
-        </form>
+            <label className="block">
+              <span className="text-xs text-gray-300">External Link (optional)</span>
+              <input
+                name="link"
+                value={form.link}
+                onChange={handleChange}
+                placeholder="Link to official page"
+                className="mt-1 w-full rounded-lg bg-black/40 border border-white/10 px-4 py-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+              />
+            </label>
+
+            {msg && (
+              <div className={`rounded-md p-3 text-sm ${msg.type === "success" ? "bg-green-800/60 text-green-200" : "bg-red-800/60 text-red-200"}`}>
+                {msg.text}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl shadow-lg transition"
+              >
+                <FiSave /> {saving ? "Saving..." : "Save Scholarship"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { resetForm(); setMsg(null); }}
+                className="px-4 py-3 rounded-xl border border-white/10 text-white hover:bg-white/5 transition"
+              >
+                Reset
+              </button>
+            </div>
+          </form>
+
+          <footer className="mt-6 text-xs text-gray-400">
+            Only admin <strong>{adminEmail}</strong> can add scholarships.
+          </footer>
+        </motion.div>
       </div>
     </div>
   );
