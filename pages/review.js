@@ -1,56 +1,94 @@
-// pages/review.js
 import { useState } from "react";
-import Layout from "../components/Layout";
+import Head from "next/head";
+import Layout from "../components/layout";
 
 export default function Review() {
-  const [rating, setRating] = useState(0);
-  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState({ name: "", email: "", rating: "5", message: "" });
+  const [success, setSuccess] = useState("");
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSuccess("✅ Thank you for your review!");
+    setFormData({ name: "", email: "", rating: "5", message: "" });
+  };
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto p-6 bg-white rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold mb-4 text-indigo-600">Rate Us</h1>
-        <p className="mb-4">
-          We’d love to hear your feedback! Please leave a rating and share your
-          thoughts about Global Scholarships.
-        </p>
-
-        {/* Rating stars */}
-        <div className="flex space-x-2 mb-4">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              onClick={() => setRating(star)}
-              className={`text-3xl ${
-                star <= rating ? "text-yellow-400" : "text-gray-400"
-              }`}
-            >
-              ★
-            </button>
-          ))}
-        </div>
-
-        {/* Feedback box */}
-        <textarea
-          className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-indigo-500"
-          placeholder="Write your feedback here..."
-          rows="4"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+      <Head>
+        <title>Review / Rate Us | Global Scholarships</title>
+        <meta
+          name="description"
+          content="Share your feedback or rate Global Scholarships to help us improve our website and services."
         />
+      </Head>
 
-        <button
-          onClick={() => {
-            alert(
-              `Thank you for your feedback!\nRating: ${rating} Stars\nMessage: ${message}`
-            );
-            setRating(0);
-            setMessage("");
-          }}
-          className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 transition"
-        >
-          Submit Feedback
-        </button>
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-12">
+        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">
+          Review / Rate Us
+        </h1>
+
+        {success && <p className="mb-4 text-green-600 font-medium bg-green-100 px-4 py-2 rounded-lg">{success}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Name</label>
+            <input
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Rating</label>
+            <select
+              name="rating"
+              value={formData.rating}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+              <option value="4">⭐⭐⭐⭐ 4 - Good</option>
+              <option value="3">⭐⭐⭐ 3 - Average</option>
+              <option value="2">⭐⭐ 2 - Poor</option>
+              <option value="1">⭐ 1 - Terrible</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Message</label>
+            <textarea
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              rows="4"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+          >
+            Submit Review
+          </button>
+        </form>
       </div>
     </Layout>
   );
