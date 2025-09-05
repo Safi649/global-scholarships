@@ -1,55 +1,52 @@
-// pages/privacy.js
-import Layout from "../components/Layout";
+import Head from "next/head";
+import Layout from "../components/layout";
 
 export default function Privacy() {
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-lg">
-        <h1 className="text-3xl font-bold mb-4 text-indigo-600">
+      <Head>
+        <title>Privacy Policy | Global Scholarships</title>
+        <meta
+          name="description"
+          content="Read the Privacy Policy of Global Scholarships, how we handle your data and protect your information."
+        />
+      </Head>
+
+      <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-12">
+        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">
           Privacy Policy
         </h1>
+
         <p className="mb-4">
-          At <strong>Global Scholarships</strong>, accessible from
-          global-scholarships.netlify.app, we value the privacy of our visitors.
-          This Privacy Policy document describes the types of information that
-          is collected and recorded by us and how we use it.
+          At <strong>Global Scholarships</strong>, we value your privacy. This Privacy Policy explains how we collect, use, and protect your information when you visit our website.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-2">Information We Collect</h2>
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Information We Collect</h2>
         <p className="mb-4">
-          We may collect personal information such as your name, email address,
-          and any details you submit through contact forms. Additionally,
-          non-personal information like browser type, device information, and
-          pages visited may be collected for analytics purposes.
+          We may collect information such as your email address, feedback, or other data you voluntarily provide when using our website or subscribing to updates.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-2">How We Use Your Information</h2>
-        <ul className="list-disc ml-6 mb-4">
-          <li>To improve our website and user experience</li>
-          <li>To provide scholarship updates and notifications</li>
-          <li>To respond to inquiries and support requests</li>
-          <li>To comply with legal requirements</li>
-        </ul>
-
-        <h2 className="text-2xl font-semibold mt-6 mb-2">Cookies</h2>
+        <h2 className="text-2xl font-semibold mt-6 mb-3">How We Use Your Information</h2>
         <p className="mb-4">
-          Our website may use cookies to store information about visitor
-          preferences and to enhance user experience. You can choose to disable
-          cookies through your browser settings.
+          Your information is used to provide a better experience, improve our website, respond to inquiries, and share scholarship updates.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-2">Third-Party Ads</h2>
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Cookies</h2>
         <p className="mb-4">
-          We may use third-party vendors, including Google, that use cookies to
-          serve ads based on users’ previous visits. Google’s use of the DART
-          cookie enables it and its partners to serve ads to you based on your
-          visit to our site and other sites on the internet.
+          We may use cookies to enhance your browsing experience. You can control cookies through your browser settings.
         </p>
 
-        <h2 className="text-2xl font-semibold mt-6 mb-2">Consent</h2>
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Third-Party Services</h2>
         <p className="mb-4">
-          By using our website, you hereby consent to our Privacy Policy and
-          agree to its terms.
+          We may use third-party services for analytics or ads (such as Google AdSense). These services may collect information automatically. We encourage you to review their privacy policies.
+        </p>
+
+        <h2 className="text-2xl font-semibold mt-6 mb-3">Contact Us</h2>
+        <p>
+          If you have questions about this Privacy Policy, you can contact us at{" "}
+          <a href="mailto:safi65225@gmail.com" className="text-blue-600 hover:underline">
+            safi65225@gmail.com
+          </a>.
         </p>
       </div>
     </Layout>
