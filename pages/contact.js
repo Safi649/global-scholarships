@@ -1,9 +1,6 @@
-// 📁 pages/contact.js
 import { useState } from "react";
 import Layout from "../components/layout";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
-import { db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -13,7 +10,7 @@ export default function Contact() {
     message: "",
   });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,16 +19,26 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setFeedback("");
+
     try {
-      await addDoc(collection(db, "messages"), {
-        ...formData,
-        createdAt: serverTimestamp(),
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-      setSuccess(true);
-      setFormData({ name: "", email: "", subject: "", message: "" });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setFeedback("✅ Message sent successfully!");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setFeedback(`❌ ${data.message}`);
+      }
     } catch (err) {
-      console.error("Error sending message:", err);
-      alert("Failed to send message. Try again.");
+      console.error(err);
+      setFeedback("❌ Failed to send message. Try again.");
     } finally {
       setLoading(false);
     }
@@ -45,7 +52,7 @@ export default function Contact() {
             Contact Us
           </h1>
           <p className="text-center text-gray-700 mb-10">
-            Have questions, feedback, or want to share something? Fill out the form below and we will get back to you as soon as possible.
+            Have questions or feedback? Send us a message and we'll get back to you.
           </p>
 
           <div className="grid md:grid-cols-2 gap-10">
@@ -63,17 +70,12 @@ export default function Contact() {
                 <FaMapMarkerAlt className="text-blue-600 text-xl" />
                 <span>Swabi, KPK, Pakistan</span>
               </div>
-              <p className="text-gray-600 mt-4 leading-relaxed">
-                All messages are stored securely and you can check them in your Firebase Firestore collection <strong>"messages"</strong>.
-              </p>
             </div>
 
             {/* Contact Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              {success && (
-                <p className="text-green-600 font-semibold">
-                  Message sent successfully!
-                </p>
+              {feedback && (
+                <p className="text-center text-green-600 font-semibold">{feedback}</p>
               )}
               <input
                 type="text"
