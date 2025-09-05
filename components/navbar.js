@@ -16,7 +16,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="/logo.png" alt="Global Scholarships" width={40} height={40} />
+          <Image
+            src="/logo.png"
+            alt="Global Scholarships"
+            width={50}
+            height={50}
+            className="object-contain"
+            priority
+          />
           <span className="text-xl font-bold text-blue-700">Global Scholarships</span>
         </Link>
 
