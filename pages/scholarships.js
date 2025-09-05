@@ -91,7 +91,9 @@ export default function Scholarships() {
                     whileHover={{ scale: 1.03 }}
                     className="relative bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group"
                   >
+                    {/* Decorative Header */}
                     <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+
                     <div className="p-6 flex flex-col justify-between h-full">
                       <div>
                         <h3 className="text-2xl font-bold text-gray-800 mb-3 group-hover:text-indigo-600 transition">
@@ -119,12 +121,21 @@ export default function Scholarships() {
                         <p className="text-gray-500 text-sm mb-2">
                           <strong>Deadline:</strong> {sch.deadline || "N/A"}
                         </p>
-                        <p className="text-gray-500 text-sm mb-4">
+                        <p className="text-gray-500 text-sm mb-2">
                           <strong>Location:</strong>{" "}
                           {sch.location || sch.hostCountry || "Worldwide"}
                         </p>
+
+                        {/* ✅ Eligible Countries */}
+                        {sch.eligibleCountries && (
+                          <p className="text-gray-500 text-sm mb-4">
+                            <strong>Eligible Countries:</strong>{" "}
+                            {sch.eligibleCountries}
+                          </p>
+                        )}
                       </div>
 
+                      {/* Buttons */}
                       <div className="flex gap-2 mt-auto">
                         <a
                           href={sch.link || "#"}
@@ -135,7 +146,7 @@ export default function Scholarships() {
                           {sch.link ? "Apply Now" : "Details"}
                         </a>
 
-                        {/* ✅ Show edit/delete only for admin */}
+                        {/* ✅ Admin Controls */}
                         {user?.email === ADMIN_EMAIL && (
                           <>
                             <button
