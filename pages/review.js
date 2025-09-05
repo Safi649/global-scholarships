@@ -1,94 +1,145 @@
-import { useState } from "react";
+// pages/review.js
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import Layout from "../components/layout";
+import { db, auth } from "../firebase";
+import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function Review() {
-  const [formData, setFormData] = useState({ name: "", email: "", rating: "5", message: "" });
-  const [success, setSuccess] = useState("");
+  const [user] = useAuthState(auth);
+  const [reviews, setReviews] = useState([]);
+  const [formData, setFormData] = useState({ name: "", comment: "", rating: 5 });
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  // Fetch existing reviews from Firestore
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "reviews"));
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setReviews(data);
+      } catch (err) {
+        console.error("Error fetching reviews:", err);
+      }
+    };
+    fetchReviews();
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccess("✅ Thank you for your review!");
-    setFormData({ name: "", email: "", rating: "5", message: "" });
+    if (!user) {
+      alert("Please login to submit a review.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "reviews"), {
+        ...formData,
+        createdAt: serverTimestamp(),
+        userId: user.uid,
+      });
+      setReviews([...reviews, { ...formData, id: Date.now() }]); // Optimistic update
+      setFormData({ name: "", comment: "", rating: 5 });
+    } catch (err) {
+      console.error("Error submitting review:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Layout>
       <Head>
-        <title>Review / Rate Us | Global Scholarships</title>
-        <meta
-          name="description"
-          content="Share your feedback or rate Global Scholarships to help us improve our website and services."
-        />
+        <title>Review & Rate Us | Global Scholarships</title>
+        <meta name="description" content="Leave a review or rating for Global Scholarships." />
       </Head>
 
-      <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-12">
-        <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center">
-          Review / Rate Us
-        </h1>
+      <div className="min-h-screen bg-gray-50 px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl font-bold text-center text-blue-700 mb-8">
+            Review & Rate Us
+          </h1>
 
-        {success && <p className="mb-4 text-green-600 font-medium bg-green-100 px-4 py-2 rounded-lg">{success}</p>}
+          {/* Review Form */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg mb-12">
+            <h2 className="text-2xl font-semibold mb-4">Leave a Review</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block font-medium mb-1">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  placeholder={user?.displayName || "Your Name"}
+                />
+              </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Name</label>
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-            />
+              <div>
+                <label className="block font-medium mb-1">Comment</label>
+                <textarea
+                  name="comment"
+                  value={formData.comment}
+                  onChange={handleChange}
+                  required
+                  rows="4"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Write your review..."
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium mb-1">Rating</label>
+                <select
+                  name="rating"
+                  value={formData.rating}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                >
+                  {[5, 4, 3, 2, 1].map((num) => (
+                    <option key={num} value={num}>
+                      {num} Star{num > 1 ? "s" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+              >
+                {loading ? "Submitting..." : "Submit Review"}
+              </button>
+            </form>
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-            />
+          {/* Display Reviews */}
+          <div className="grid grid-cols-1 gap-6">
+            {reviews.length === 0 ? (
+              <p className="text-center text-gray-600">No reviews yet. Be the first to review!</p>
+            ) : (
+              reviews
+                .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
+                .map((rev) => (
+                  <div key={rev.id} className="bg-white p-4 rounded-xl shadow-md">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-semibold">{rev.name}</h3>
+                      <span className="text-yellow-500 font-bold">{rev.rating} ★</span>
+                    </div>
+                    <p className="text-gray-700 whitespace-pre-line">{rev.comment}</p>
+                  </div>
+                ))
+            )}
           </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Rating</label>
-            <select
-              name="rating"
-              value={formData.rating}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
-              <option value="4">⭐⭐⭐⭐ 4 - Good</option>
-              <option value="3">⭐⭐⭐ 3 - Average</option>
-              <option value="2">⭐⭐ 2 - Poor</option>
-              <option value="1">⭐ 1 - Terrible</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Message</label>
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              rows="4"
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
-          >
-            Submit Review
-          </button>
-        </form>
+        </div>
       </div>
     </Layout>
   );
