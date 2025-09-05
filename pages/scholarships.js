@@ -2,13 +2,17 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
 import { motion } from "framer-motion";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db, auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState({}); // ✅ track expanded cards
+  const [expanded, setExpanded] = useState({});
+  const [user] = useAuthState(auth);
+
+  const ADMIN_EMAIL = "muhammadabbassafi332@gmail.com"; // ✅ your admin email
 
   useEffect(() => {
     const fetchScholarships = async () => {
@@ -30,6 +34,16 @@ export default function Scholarships() {
 
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this scholarship?")) return;
+    try {
+      await deleteDoc(doc(db, "scholarships", id));
+      setScholarships((prev) => prev.filter((s) => s.id !== id));
+    } catch (err) {
+      console.error("Delete Error:", err);
+    }
   };
 
   return (
@@ -84,14 +98,15 @@ export default function Scholarships() {
                           {sch.title || sch.name}
                         </h3>
 
-                        {/* Description with Read More / Less */}
+                        {/* ✅ Description with line breaks */}
                         <p
-                          className={`text-gray-600 text-sm mb-2 ${
+                          className={`text-gray-600 text-sm mb-2 whitespace-pre-line ${
                             isExpanded ? "" : "line-clamp-3"
                           }`}
                         >
                           {description}
                         </p>
+
                         {description.length > 120 && (
                           <button
                             onClick={() => toggleExpand(sch.id)}
@@ -109,14 +124,37 @@ export default function Scholarships() {
                           {sch.location || sch.hostCountry || "Worldwide"}
                         </p>
                       </div>
-                      <a
-                        href={sch.link || "#"}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-auto inline-block text-center bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-indigo-700 transition"
-                      >
-                        {sch.link ? "Apply Now" : "Details"}
-                      </a>
+
+                      <div className="flex gap-2 mt-auto">
+                        <a
+                          href={sch.link || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-center bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-indigo-700 transition"
+                        >
+                          {sch.link ? "Apply Now" : "Details"}
+                        </a>
+
+                        {/* ✅ Show edit/delete only for admin */}
+                        {user?.email === ADMIN_EMAIL && (
+                          <>
+                            <button
+                              className="px-3 py-2 rounded-lg bg-yellow-500 text-white font-medium shadow hover:bg-yellow-600 transition"
+                              onClick={() =>
+                                alert("Edit functionality coming soon...")
+                              }
+                            >
+                              ✏️ Edit
+                            </button>
+                            <button
+                              className="px-3 py-2 rounded-lg bg-red-500 text-white font-medium shadow hover:bg-red-600 transition"
+                              onClick={() => handleDelete(sch.id)}
+                            >
+                              🗑️ Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 );
