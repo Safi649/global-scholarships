@@ -82,7 +82,7 @@ export default function Disclaimer() {
           </p>
 
           <p>
-            <strong>Contact Us:</strong> If you have questions or concerns regarding this disclaimer or the information on this website, please contact us directly at <strong>safi65225@gmail.com</strong>. 
+            <strong>Contact Us:</strong> If you have questions or concerns regarding this disclaimer or the information on this website, please contact us directly at <strong>muhammadabbassafi332@gmail.com</strong>. 
             We are committed to providing accurate and helpful information and will make every effort to address inquiries promptly.
           </p>
         </div>
