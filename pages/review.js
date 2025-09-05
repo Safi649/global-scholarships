@@ -9,10 +9,9 @@ import { useAuthState } from "react-firebase-hooks/auth";
 export default function Review() {
   const [user] = useAuthState(auth);
   const [reviews, setReviews] = useState([]);
-  const [formData, setFormData] = useState({ name: "", comment: "", rating: 5 });
+  const [formData, setFormData] = useState({ name: "", comment: "", rating: 0 });
   const [loading, setLoading] = useState(false);
 
-  // Fetch existing reviews from Firestore
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -26,6 +25,10 @@ export default function Review() {
     fetchReviews();
   }, []);
 
+  const handleStarClick = (star) => {
+    setFormData({ ...formData, rating: star });
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -36,6 +39,10 @@ export default function Review() {
       alert("Please login to submit a review.");
       return;
     }
+    if (formData.rating === 0) {
+      alert("Please select a star rating.");
+      return;
+    }
     setLoading(true);
     try {
       await addDoc(collection(db, "reviews"), {
@@ -43,8 +50,8 @@ export default function Review() {
         createdAt: serverTimestamp(),
         userId: user.uid,
       });
-      setReviews([...reviews, { ...formData, id: Date.now() }]); // Optimistic update
-      setFormData({ name: "", comment: "", rating: 5 });
+      setReviews([...reviews, { ...formData, id: Date.now() }]);
+      setFormData({ name: "", comment: "", rating: 0 });
     } catch (err) {
       console.error("Error submitting review:", err);
     } finally {
@@ -97,18 +104,17 @@ export default function Review() {
 
               <div>
                 <label className="block font-medium mb-1">Rating</label>
-                <select
-                  name="rating"
-                  value={formData.rating}
-                  onChange={handleChange}
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-                >
-                  {[5, 4, 3, 2, 1].map((num) => (
-                    <option key={num} value={num}>
-                      {num} Star{num > 1 ? "s" : ""}
-                    </option>
+                <div className="flex space-x-2 text-2xl cursor-pointer">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      onClick={() => handleStarClick(star)}
+                      className={star <= formData.rating ? "text-yellow-400" : "text-gray-300"}
+                    >
+                      ★
+                    </span>
                   ))}
-                </select>
+                </div>
               </div>
 
               <button
@@ -132,7 +138,7 @@ export default function Review() {
                   <div key={rev.id} className="bg-white p-4 rounded-xl shadow-md">
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-semibold">{rev.name}</h3>
-                      <span className="text-yellow-500 font-bold">{rev.rating} ★</span>
+                      <span className="text-yellow-400 font-bold">{rev.rating} ★</span>
                     </div>
                     <p className="text-gray-700 whitespace-pre-line">{rev.comment}</p>
                   </div>
