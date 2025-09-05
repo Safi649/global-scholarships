@@ -1,6 +1,6 @@
 // pages/privacy.js
 import Head from "next/head";
-import Layout from "../components/layout";
+import Layout from "../components/Layout";
 
 export default function Privacy() {
   return (
@@ -38,7 +38,7 @@ export default function Privacy() {
           <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
           <p className="text-gray-700">
             If you have any questions regarding this Privacy Policy, please contact us at:
-            <strong className="text-indigo-600"> info@globalscholarships.com</strong>.
+            <strong className="text-indigo-600"> support muhammadabbassafi332@gmail.com</strong>.
           </p>
         </div>
       </div>
