@@ -1,4 +1,3 @@
-// 📁 components/navbar.js
 import Image from "next/image";
 import Link from "next/link";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -43,6 +42,8 @@ export default function Navbar() {
         <Link href="/contact">Contact</Link>
         <Link href="/terms">Terms</Link>
         <Link href="/disclaimer">Disclaimer</Link>
+        <Link href="/privacy">Privacy</Link>
+        <Link href="/review">Review</Link>
 
         {/* Auth Buttons */}
         <div className="flex gap-3 ml-4">
@@ -89,6 +90,8 @@ export default function Navbar() {
           <Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
           <Link href="/terms" onClick={() => setMenuOpen(false)}>Terms</Link>
           <Link href="/disclaimer" onClick={() => setMenuOpen(false)}>Disclaimer</Link>
+          <Link href="/privacy" onClick={() => setMenuOpen(false)}>Privacy</Link>
+          <Link href="/review" onClick={() => setMenuOpen(false)}>Review</Link>
 
           {/* Auth Buttons */}
           <div className="flex flex-col gap-3 w-4/5">
