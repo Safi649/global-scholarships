@@ -1,7 +1,7 @@
 // pages/review.js
 import { useState, useEffect } from "react";
 import Head from "next/head";
-import Layout from "../components/layout";
+import Layout from "../components/Layout";
 import { db, auth } from "../firebase";
 import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
