@@ -1,4 +1,3 @@
-// 📁 pages/index.js
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa';
@@ -19,7 +18,7 @@ export default function Home() {
           <div className="flex justify-center mb-6">
             <Image 
               src="/logo.png" 
-              alt="Logo" 
+              alt="Global Scholarships Logo" 
               width={64} 
               height={64} 
               unoptimized // 🔑 important for Netlify
@@ -55,18 +54,18 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* Features */}
+        {/* Features Section */}
         <section className="py-16 bg-white text-gray-900">
           <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-10 text-center">
-            <motion.div whileHover={{ scale: 1.05 }}>
+            <motion.div whileHover={{ scale: 1.05 }} className="p-6 bg-gray-50 rounded-xl shadow-md">
               <h3 className="text-xl font-bold mb-2">🔍 Search Scholarships</h3>
               <p>Filter by country, level, or field to find the right opportunity.</p>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }}>
+            <motion.div whileHover={{ scale: 1.05 }} className="p-6 bg-gray-50 rounded-xl shadow-md">
               <h3 className="text-xl font-bold mb-2">📝 Easy Applications</h3>
               <p>Get direct links and tips for a successful application.</p>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }}>
+            <motion.div whileHover={{ scale: 1.05 }} className="p-6 bg-gray-50 rounded-xl shadow-md">
               <h3 className="text-xl font-bold mb-2">📢 Daily Updates</h3>
               <p>Stay updated with fresh international scholarships.</p>
             </motion.div>
