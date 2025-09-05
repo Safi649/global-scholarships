@@ -1,7 +1,6 @@
 // pages/review.js
 import { useState, useEffect } from "react";
 import Head from "next/head";
-import Layout from "../components/Layout";
 import { db, auth } from "../firebase";
 import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -45,12 +44,14 @@ export default function Review() {
     }
     setLoading(true);
     try {
-      await addDoc(collection(db, "reviews"), {
+      const docRef = await addDoc(collection(db, "reviews"), {
         ...formData,
         createdAt: serverTimestamp(),
         userId: user.uid,
       });
-      setReviews([...reviews, { ...formData, id: Date.now() }]);
+
+      // Append the new review to the end
+      setReviews([...reviews, { ...formData, id: docRef.id }]);
       setFormData({ name: "", comment: "", rating: 0 });
     } catch (err) {
       console.error("Error submitting review:", err);
@@ -60,7 +61,7 @@ export default function Review() {
   };
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>Review & Rate Us | Global Scholarships</title>
         <meta name="description" content="Leave a review or rating for Global Scholarships." />
@@ -133,7 +134,7 @@ export default function Review() {
               <p className="text-center text-gray-600">No reviews yet. Be the first to review!</p>
             ) : (
               reviews
-                .sort((a, b) => b.createdAt?.seconds - a.createdAt?.seconds)
+                .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)) // oldest first
                 .map((rev) => (
                   <div key={rev.id} className="bg-white p-4 rounded-xl shadow-md">
                     <div className="flex justify-between items-center mb-2">
@@ -147,6 +148,6 @@ export default function Review() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
