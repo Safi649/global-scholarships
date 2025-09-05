@@ -7,11 +7,11 @@ export default function Navbar() {
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2">
         <Image
-          src="/logo.png"   // ✅ must be inside public/
+          src="/logo.png"   // ✅ make sure logo.png is inside /public
           alt="Global Scholarships Logo"
           width={40}
           height={40}
-          unoptimized       // ✅ important if Netlify complains
+          unoptimized
           className="rounded-md"
         />
         <span className="text-xl font-bold text-blue-700">Global Scholarships</span>
@@ -23,6 +23,8 @@ export default function Navbar() {
         <Link href="/about">About</Link>
         <Link href="/scholarships">Scholarships</Link>
         <Link href="/contact">Contact</Link>
+        <Link href="/terms">Terms</Link>
+        <Link href="/disclaimer">Disclaimer</Link>
       </div>
     </nav>
   );
