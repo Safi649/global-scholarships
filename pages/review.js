@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import { db, auth } from "../firebase";
-import { collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, serverTimestamp, query, orderBy } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function Review() {
@@ -11,10 +11,12 @@ export default function Review() {
   const [formData, setFormData] = useState({ name: "", comment: "", rating: 0 });
   const [loading, setLoading] = useState(false);
 
+  // Fetch reviews from Firestore
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "reviews"));
+        const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
         const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setReviews(data);
       } catch (err) {
@@ -34,6 +36,7 @@ export default function Review() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!user) {
       alert("Please login to submit a review.");
       return;
@@ -42,6 +45,7 @@ export default function Review() {
       alert("Please select a star rating.");
       return;
     }
+
     setLoading(true);
     try {
       const docRef = await addDoc(collection(db, "reviews"), {
@@ -50,11 +54,17 @@ export default function Review() {
         userId: user.uid,
       });
 
-      // Append the new review to the end
-      setReviews([...reviews, { ...formData, id: docRef.id }]);
+      // Add review to state immediately
+      setReviews(prev => [
+        { id: docRef.id, ...formData, createdAt: { seconds: Date.now() / 1000 } },
+        ...prev,
+      ]);
+
+      // Reset form
       setFormData({ name: "", comment: "", rating: 0 });
     } catch (err) {
       console.error("Error submitting review:", err);
+      alert("Failed to submit review.");
     } finally {
       setLoading(false);
     }
@@ -133,17 +143,15 @@ export default function Review() {
             {reviews.length === 0 ? (
               <p className="text-center text-gray-600">No reviews yet. Be the first to review!</p>
             ) : (
-              reviews
-                .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)) // oldest first
-                .map((rev) => (
-                  <div key={rev.id} className="bg-white p-4 rounded-xl shadow-md">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="font-semibold">{rev.name}</h3>
-                      <span className="text-yellow-400 font-bold">{rev.rating} ★</span>
-                    </div>
-                    <p className="text-gray-700 whitespace-pre-line">{rev.comment}</p>
+              reviews.map((rev) => (
+                <div key={rev.id} className="bg-white p-4 rounded-xl shadow-md">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold">{rev.name}</h3>
+                    <span className="text-yellow-400 font-bold">{rev.rating} ★</span>
                   </div>
-                ))
+                  <p className="text-gray-700 whitespace-pre-line">{rev.comment}</p>
+                </div>
+              ))
             )}
           </div>
         </div>
