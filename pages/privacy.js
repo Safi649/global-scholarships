@@ -1,6 +1,5 @@
 // pages/privacy.js
 import Head from "next/head";
-import Footer from "../components/footer"; // only footer, no navbar
 
 export default function Privacy() {
   return (
@@ -42,8 +41,6 @@ export default function Privacy() {
           </p>
         </div>
       </div>
-
-      <Footer />
     </>
   );
 }
