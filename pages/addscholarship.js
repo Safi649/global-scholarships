@@ -1,9 +1,11 @@
 // 📁 pages/addscholarship.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
 import Layout from "../components/layout";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from "next/router";
 
 export default function AddScholarship() {
   const [formData, setFormData] = useState({
@@ -16,8 +18,27 @@ export default function AddScholarship() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
 
-  // ✅ Handle Input Change
+  const router = useRouter();
+
+  // ✅ Watch authentication
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (
+        currentUser &&
+        currentUser.email === "muhammadabbassafi332@gmail.com" // ✅ only your email is admin
+      ) {
+        setUser(currentUser);
+      } else {
+        router.push("/"); // redirect non-admins to home
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  // ✅ Handle input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,7 +46,7 @@ export default function AddScholarship() {
     });
   };
 
-  // ✅ Submit Form
+  // ✅ Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -53,6 +74,10 @@ export default function AddScholarship() {
     }
   };
 
+  if (!user) {
+    return null; // ✅ nothing while redirecting
+  }
+
   return (
     <Layout>
       <Head>
@@ -65,7 +90,7 @@ export default function AddScholarship() {
             Add New Scholarship
           </h1>
 
-          {/* ✅ Success / Error Alerts */}
+          {/* ✅ Alerts */}
           {success && (
             <p className="mb-4 text-green-600 font-medium bg-green-100 px-4 py-2 rounded-lg">
               {success}
@@ -77,8 +102,8 @@ export default function AddScholarship() {
             </p>
           )}
 
+          {/* ✅ Scholarship Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Scholarship Title
@@ -93,7 +118,6 @@ export default function AddScholarship() {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Description
@@ -108,7 +132,6 @@ export default function AddScholarship() {
               ></textarea>
             </div>
 
-            {/* Deadline */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Deadline
@@ -122,7 +145,6 @@ export default function AddScholarship() {
               />
             </div>
 
-            {/* Location */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Location
@@ -137,7 +159,6 @@ export default function AddScholarship() {
               />
             </div>
 
-            {/* Link */}
             <div>
               <label className="block text-gray-700 font-medium mb-2">
                 Application Link
@@ -152,7 +173,6 @@ export default function AddScholarship() {
               />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
