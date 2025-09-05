@@ -1,8 +1,8 @@
-// pages/privacy-policy.js
+// pages/privacy.js
 import Head from "next/head";
 import Layout from "../components/layout";
 
-export default function PrivacyPolicy() {
+export default function Privacy() {
   return (
     <Layout>
       <Head>
