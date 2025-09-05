@@ -1,10 +1,10 @@
 // pages/privacy.js
 import Head from "next/head";
-import Layout from "../components/Layout";
+import Footer from "../components/footer"; // only footer, no navbar
 
 export default function Privacy() {
   return (
-    <Layout>
+    <>
       <Head>
         <title>Privacy Policy | Global Scholarships</title>
         <meta
@@ -38,10 +38,12 @@ export default function Privacy() {
           <h2 className="text-2xl font-semibold mb-4">Contact Us</h2>
           <p className="text-gray-700">
             If you have any questions regarding this Privacy Policy, please contact us at:
-            <strong className="text-indigo-600"> support muhammadabbassafi332@gmail.com</strong>.
+            <strong className="text-indigo-600"> support@muhammadabbassafi332.com</strong>.
           </p>
         </div>
       </div>
-    </Layout>
+
+      <Footer />
+    </>
   );
 }
