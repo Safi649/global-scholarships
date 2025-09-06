@@ -10,7 +10,8 @@ export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState({});
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ new search state
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ search state
+  const [filterOption, setFilterOption] = useState(""); // ✅ filter state
   const [user] = useAuthState(auth);
   const router = useRouter();
 
@@ -48,14 +49,23 @@ export default function Scholarships() {
     }
   };
 
-  // ✅ Filter scholarships by searchTerm (checks all fields for partial match)
-  const filteredScholarships = scholarships.filter((sch) =>
-    Object.values(sch).some(
+  // ✅ Apply search + filter
+  const filteredScholarships = scholarships.filter((sch) => {
+    const matchesSearch = Object.values(sch).some(
       (value) =>
         typeof value === "string" &&
         value.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+    );
+
+    const matchesFilter =
+      !filterOption ||
+      sch.location?.toLowerCase().includes(filterOption.toLowerCase()) ||
+      sch.eligibleCountries
+        ?.toLowerCase()
+        .includes(filterOption.toLowerCase());
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <>
@@ -82,21 +92,32 @@ export default function Scholarships() {
             Available Scholarships
           </motion.h1>
 
-          {/* ✅ Search bar */}
-          <div className="mb-8 flex justify-center">
+          {/* ✅ Search + Filter bar */}
+          <div className="flex flex-col md:flex-row justify-center gap-4 mb-8">
             <input
               type="text"
               placeholder="Search scholarships..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-lg p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 max-w-lg p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500"
             />
+
+            <select
+              value={filterOption}
+              onChange={(e) => setFilterOption(e.target.value)}
+              className="p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">All Locations</option>
+              <option value="Pakistan">Pakistan</option>
+              <option value="USA">USA</option>
+              <option value="UK">UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Worldwide">Worldwide</option>
+            </select>
           </div>
 
           {loading ? (
-            <p className="text-center text-gray-600">
-              Loading scholarships...
-            </p>
+            <p className="text-center text-gray-600">Loading scholarships...</p>
           ) : filteredScholarships.length === 0 ? (
             <p className="text-center text-gray-600">
               No scholarships found matching your search.
@@ -120,7 +141,6 @@ export default function Scholarships() {
                           {sch.title || sch.name}
                         </h3>
 
-                        {/* ✅ Description with line breaks */}
                         <p
                           className={`text-gray-600 text-sm mb-2 whitespace-pre-line ${
                             isExpanded ? "" : "line-clamp-3"
