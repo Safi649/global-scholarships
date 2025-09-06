@@ -10,6 +10,7 @@ export default function Scholarships() {
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState({});
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ new search state
   const [user] = useAuthState(auth);
   const router = useRouter();
 
@@ -47,6 +48,15 @@ export default function Scholarships() {
     }
   };
 
+  // ✅ Filter scholarships by searchTerm (checks all fields for partial match)
+  const filteredScholarships = scholarships.filter((sch) =>
+    Object.values(sch).some(
+      (value) =>
+        typeof value === "string" &&
+        value.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
   return (
     <>
       <Head>
@@ -72,17 +82,28 @@ export default function Scholarships() {
             Available Scholarships
           </motion.h1>
 
+          {/* ✅ Search bar */}
+          <div className="mb-8 flex justify-center">
+            <input
+              type="text"
+              placeholder="Search scholarships..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-lg p-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
           {loading ? (
             <p className="text-center text-gray-600">
               Loading scholarships...
             </p>
-          ) : scholarships.length === 0 ? (
+          ) : filteredScholarships.length === 0 ? (
             <p className="text-center text-gray-600">
-              No scholarships found. Please check back later.
+              No scholarships found matching your search.
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {scholarships.map((sch) => {
+              {filteredScholarships.map((sch) => {
                 const isExpanded = expanded[sch.id];
                 const description = sch.description || sch.details || "";
 
